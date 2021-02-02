@@ -1,7 +1,7 @@
 %% LaBGAS_extract_confound_reg_fMRIprep
 %
 % This script will extract noise regressors from fMRIprep output for
-% Nathalie's emotional modulation of visceral pain study, including
+% the emosymp study, including
 % a) CSF signal
 % b) 24 head motion parameters (six directions, derivatives, and squared
 % values)
@@ -17,6 +17,7 @@
 %
 % OUTPUT
 % noise_regs & onsets files that can be loaded into CANlab DSGN structure
+% (RECOMMENDED)
 % or directly into SPM first level batch (for the latter, use
 % LaBGAS_first_level_batch_fMRIprep_conf)
 %
@@ -52,29 +53,31 @@
 % date:   May, 2020
 %
 %__________________________________________________________________________
-% @(#)% LaBGAS_extract_confound_reg_fMRIprep.m         v1.2        
-% last modified: 2020/05/12
+% @(#)% LaBGAS_extract_confound_reg_fMRIprep.m         v1.3        
+% last modified: 2021/02/02
 %
 % changes versus version 1.0
 % 1) made omit_spike_trials optional
 % 2) small optimizations
 % changes versus version 1.1
 % omitted unzipping and zipping if spike_def = fMRIprep
+% changes versus version 1.2
+% 1) looped over subjects
+% 2) writes onsets and noise_regs files to derivdir rather than
+% firstleveldir for better integration with
+% LaBGAS_create_first_level_CANlab_tools_folder_structure.m
 
-%% set paths, TR, and choose options
-basedir = 'C:\Users\lukas\Dropbox (Personal)\proj-SERT-fMRI';
-derivdir = 'C:\Users\lukas\Dropbox (Personal)\proj-SERT-fMRI\derivatives\fmriprep\sub-01\func'; % dir with fMRIprep output
-rawdir = 'C:\Users\lukas\Dropbox (Personal)\proj-SERT-fMRI\rawdata1\sub-01\func'; % dir with raw .nii files
-outputdir = 'C:\Users\lukas\Dropbox (Personal)\proj-SERT-fMRI\firstlevel\sub-01'; % dir where confound files for first level will be written
-TR = 2;
-nr_task_runs = 3;
+%% define dirs, TR, and choose options
+basedir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS';
+derivdir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\derivatives\fmriprep'; % dir with fMRIprep output
+rawdir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\rawdata'; % dir with raw .nii files
+TR = 3;
 spike_def = 'fMRIprep';
 omit_spike_trials = 'no';
 spike_additional_vols=0;
-spikes_percent_threshold=0.05;
+spikes_percent_threshold=0.15;
 
-% DO NOT CHANGE CODE BELOW THIS LINE WITHOUT DISCUSSING WITH LUKAS
-% ALWAYS MAKE A LOCAL COPY OF EXAMPLE SCRIPTS BEFORE MODIFYING
+% ALWAYS MAKE YOUR OWN BRANCH ON GITHUB BEFORE MODIFYING THE CODE BELOW!
 
 %% define filenames, and unzip raw images
 % .nii.gz not supported in CANlab function 'scn_session_spike_id' which is
