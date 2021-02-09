@@ -43,7 +43,7 @@
 % date:   October, 2020
 %
 %__________________________________________________________________________
-% @(#)% LaBGAS_get_firstlvl_dsgn_obj.m         v1.0        
+% @(#)% LaBGAS_get_firstlvl_dsgn_obj.m         v1.1        
 % last modified: 2021/02/05
 %
 %% function code
@@ -63,10 +63,10 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
                 DSGN.subjects = [DSGN.subjects, [this_f.folder, '\', this_f.name]];
             end
     end
-    DSGN.funcnames{1} = 'func\s6*.nii'; % cell array of subject directories (absolute paths)	
+    DSGN.funcnames{1} = 'func\s6*.nii.gz'; % cell array of subject directories (absolute paths)	
     % optional fields
     DSGN.concatenation = {}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly
-    DSGN.allowmissingfunc = false; % default; true will prevent erroring out when functional file is missing
+    DSGN.allowmissingfunc = true; % default; true will prevent erroring out when functional file is missing
     DSGN.customrunintercepts = {}; % default: none; will only work if DSGN.concatenation is specified; cell array of vectors specifying custom intercepts
     
     % PARAMETERS
