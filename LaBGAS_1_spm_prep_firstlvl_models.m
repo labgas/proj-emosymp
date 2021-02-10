@@ -94,11 +94,12 @@ DSGN = LaBGAS_get_firstlvl_dsgn_obj(); % calls function to write DSGN structure 
 useAROMA = false; % set to true if you want to use ICA-AROMA
 noise_method = 'LaBGAS';
 maskTRs = 0;
-conds2model = {'negative','neutral','positive','pause','rating'}; % cell array with names of conditions you want to model - see documentation above
+conds2model = {'negative','neutral','positive','scoring'}; % cell array with names of conditions you want to model - see documentation above
 
 %% extract model data, perform sanity check and save it
 % @bogpetre: serial processing because invoking 'save' in parallel requires
 % inelegant hacks
+subjs = dir([DSGN.modeldir,'\sub-*']);
 for i = 1:size(DSGN.subjects,2) % iter over subj
     for j = 1:size(DSGN.funcnames,2)
     nii = dir([DSGN.subjects{i},'\',DSGN.funcnames{j}]);
@@ -106,7 +107,7 @@ for i = 1:size(DSGN.subjects,2) % iter over subj
             onset_file=ls([nii(1).folder,'\onset*']);
             save_files = true;    
             nii_path = [nii(1).folder, '\', nii(1).name];
-            sid = nii(1).name(4:16);
+            sid = subjs(i).name;
             nii_hdr = read_hdr(nii_path); % used later for sanity checks
 
             %% create onsets vector design
@@ -128,10 +129,7 @@ for i = 1:size(DSGN.subjects,2) % iter over subj
             positive = struct('name',{conds2model(3)}, ...
                             'onset', {{[]}}, ...
                             'duration', {{[]}});
-            pause = struct('name',{conds2model(4)}, ...
-                            'onset', {{[]}}, ...
-                            'duration', {{[]}});
-            rating = struct('name',{conds2model(5)}, ...
+            scoring = struct('name',{conds2model(4)}, ...
                         'onset', {{[]}}, ...
                         'duration', {{[]}});
             
@@ -147,12 +145,9 @@ for i = 1:size(DSGN.subjects,2) % iter over subj
                     case 'positive'
                         positive.onset{1} = [positive.onset{1}, stim_dat.onset(k)];
                         positive.duration{1} = [positive.duration{1}, stim_dat.duration(k)];
-                    case 'pause'
-                        pause.onset{1} = [pause.onset{1}, stim_dat.onset(k)];
-                        pause.duration{1} = [pause.duration{1}, stim_dat.duration(k)];
-                    case 'rating'
-                        rating.onset{1} = [rating.onset{1}, stim_dat.onset(k)];
-                        rating.duration{1} = [rating.duration{1}, stim_dat.duration(k)];
+                    case 'scoring'
+                        scoring.onset{1} = [scoring.onset{1}, stim_dat.onset(k)];
+                        scoring.duration{1} = [scoring.duration{1}, stim_dat.duration(k)];
                 end
             end
                       
@@ -242,7 +237,7 @@ for i = 1:size(DSGN.subjects,2) % iter over subj
             end
             
             % do a sanity check on design info
-            maxDesignTiming = max([negative.onset{1} + negative.duration{1}, neutral.onset{1} + neutral.duration{1}, positive.onset{1} + positive.duration{1}, pause.onset{1} + pause.duration{1}, rating.onset{1} + rating.duration{1}]);
+            maxDesignTiming = max([negative.onset{1} + negative.duration{1}, neutral.onset{1} + neutral.duration{1}, positive.onset{1} + positive.duration{1}, scoring.onset{1} + scoring.duration{1}]);
             boldDuration = nii_hdr.tdim*DSGN.tr;
             if boldDuration < maxDesignTiming
                 warning(['Max stimulus timing (' int2str(maxDesignTiming) 's) exceeds BOLD duration (' int2str(boldDuration) ,'s) for ' sid ' run ' int2str(j), ', skipping ...']);
@@ -256,8 +251,7 @@ for i = 1:size(DSGN.subjects,2) % iter over subj
                 save([mdl_path, negative.name{1}],'-struct','negative');
                 save([mdl_path, neutral.name{1}],'-struct','neutral');
                 save([mdl_path, positive.name{1}],'-struct','positive');
-                save([mdl_path, pause.name{1}],'-struct','pause');
-                save([mdl_path, rating.name{1}],'-struct','rating');
+                save([mdl_path, scoring.name{1}],'-struct','scoring');
 
                 save([mdl_path, DSGN.multireg, '.mat'],'R');
             end
