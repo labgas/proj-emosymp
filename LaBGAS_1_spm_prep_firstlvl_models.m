@@ -90,7 +90,7 @@ addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add the LaBG
 
 DSGN = LaBGAS_get_firstlvl_dsgn_obj(); % calls function to write DSGN structure array to your Matlab workspace
 useAROMA = false; % set to true if you want to use ICA-AROMA
-noise_method = 'canlab';
+noise_method = 'LaBGAS';
 maskTRs = 0;
 conds2model = {'negative','neutral','positive','pause','rating'}; % cell array with names of conditions you want to model - see documentation above
 
