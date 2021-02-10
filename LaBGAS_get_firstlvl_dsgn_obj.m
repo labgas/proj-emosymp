@@ -86,8 +86,7 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
     c=c+1;DSGN.conditions{1}{c}='negative';
     c=c+1;DSGN.conditions{1}{c}='neutral';
     c=c+1;DSGN.conditions{1}{c}='positive';
-    c=c+1;DSGN.conditions{1}{c}='pause';
-    c=c+1;DSGN.conditions{1}{c}='rating';
+    c=c+1;DSGN.conditions{1}{c}='scoring';
     % optional fields
 %     DSGN.pmods = {{}}; % cell array (one cell per session) of cell arrays (one cell per condition) of cell arrays (one cell per modulator) of MAT-file names
 %     DSGN.convolution; default hrf.derivs = [0 0]; structure specifying the convolution to use for conditions different fields required depending on convolution type; 
