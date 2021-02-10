@@ -22,13 +22,9 @@
 % addpath(genpath('C:\Users\lukas\Documents\GitHub\CanlabCore')); % add relevant CANlab tools folders and spm to Matlab path if they are not there yet - I have saved them on my Matlab path permanently hence do not need this
 % addpath(genpath('C:\Users\lukas\Documents\GitHub\CanlabPrivate'));
 % addpath(genpath('C:\Users\lukas\Documents\MATLAB\spm12'));
-
 addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add our local path to the LaBGAS Github repo for this project
 
-DSGN = LaBGAS_get_firstlvl_dsgn_obj(); % calls function to write DSGN structure array to your Matlab workspace
-sid = dir([DSGN.modeldir,'\sub-*']);
-logDir=[DSGN.modeldir, '\', sid(i).name, '\diagnostics'];
+%% code
 cd(logDir);
-
 vifs = scn_spm_design_check([DSGN.modeldir, '\', sid(i).name],'events_only');
 save('vifs','vifs');
