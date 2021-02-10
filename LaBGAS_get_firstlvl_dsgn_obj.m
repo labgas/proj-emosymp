@@ -58,12 +58,17 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
     fnames=fnames(idx);
     for i = 1:size(fnames,1)
         this_f = fnames(i);
-            runs = dir([this_f.folder, '\', this_f.name, '\func\s6*.nii.gz']);
-            if length(runs) > 1 % only include subject if it has more than one run
+            runs = dir([this_f.folder, '\', this_f.name, '\func\sub*.tsv']);
+            if length(runs) > 1 % only include subject if it has at least two runs - this should be the case in all subjects for this study - check trouble_in_paradise.xlsx
                 DSGN.subjects = [DSGN.subjects, [this_f.folder, '\', this_f.name]];
             end
     end
-    DSGN.funcnames{1} = 'func\s6*.nii.gz'; % cell array of subject directories (absolute paths)	
+    DSGN.funcnames = {'func\run-1\s6*.nii',...
+        'func\run-2\s6*.nii',...
+        'func\run-3\s6*.nii',...
+        'func\run-4\s6*.nii',...
+        'func\run-5\s6*.nii',...
+        'func\run-6\s6*.nii'}; % cell array of subject directories (absolute paths)	
     % optional fields
     DSGN.concatenation = {}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly
     DSGN.allowmissingfunc = true; % default; true will prevent erroring out when functional file is missing
