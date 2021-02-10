@@ -12,7 +12,7 @@
 % author: lukas.vanoudenhove@kuleuven.be
 % date:   October, 2020
 %__________________________________________________________________________
-% @(#)% LaBGAS_create_first_level_CANlab_tools_folder_structure.m     v1.        
+% @(#)% LaBGAS_create_first_level_CANlab_tools_folder_structure.m     v1.1       
 % last modified: 2021/02/09
 
 %% define directories (absolute path) and make new first level directory with model subdirectory
@@ -41,7 +41,7 @@ cd(modeldir);
 cellfun(sm,subjs); % applies function sm to all cells of subjs
 
 %% loop over subjects to copy and move the onsets, noise_regs, functional scans, and fmriprep confound files to subdirectories per run
-for i=13:size(subjs,1)
+for i=54:size(subjs,1)
     subjmodeldir=fullfile(modeldir,subjs{i});
     subjderivdir=fullfile(derivdir,subjs{i},'func');
     cd(subjderivdir);
@@ -74,6 +74,7 @@ for i=13:size(subjs,1)
                     copyfile(fullfile(subjderivdir,fmriprepconf_files{j,:}),fullfile(rundir,fmriprepconf_files{j,:}));
                     delete(niigz_files{j});
                 elseif contains(niifile,runnames{j+2})
+                    warning(strcat(runnames{j+1},'_missing_in_',subjs{i})); % warnings may still be partly off - double-check whether missing runs match trouble in paradise
                     rundir=fullfile(subjderivdir,runnames{j+2});
                     movefile(fullfile(subjderivdir,niifile),fullfile(rundir,niifile));
                     movefile(fullfile(subjderivdir,onset_files(j,:)),fullfile(rundir,onset_files(j,:)));
@@ -81,7 +82,16 @@ for i=13:size(subjs,1)
                     copyfile(fullfile(subjderivdir,fmriprepconf_files{j,:}),fullfile(rundir,fmriprepconf_files{j,:}));
                     delete(niigz_files{j});
                 elseif contains(niifile,runnames{j+3})
+                    warning(strcat(runnames{j+2},'_missing_in_',subjs{i}));
                     rundir=fullfile(subjderivdir,runnames{j+3});
+                    movefile(fullfile(subjderivdir,niifile),fullfile(rundir,niifile));
+                    movefile(fullfile(subjderivdir,onset_files(j,:)),fullfile(rundir,onset_files(j,:)));
+                    movefile(fullfile(subjderivdir,noise_files(j,:)),fullfile(rundir,noise_files(j,:)));
+                    copyfile(fullfile(subjderivdir,fmriprepconf_files{j,:}),fullfile(rundir,fmriprepconf_files{j,:}));
+                    delete(niigz_files{j});
+                elseif contains(niifile,runnames{j+4})
+                    warning(strcat(runnames{j+4},'_missing_in_',subjs{i}));
+                    rundir=fullfile(subjderivdir,runnames{j+4});
                     movefile(fullfile(subjderivdir,niifile),fullfile(rundir,niifile));
                     movefile(fullfile(subjderivdir,onset_files(j,:)),fullfile(rundir,onset_files(j,:)));
                     movefile(fullfile(subjderivdir,noise_files(j,:)),fullfile(rundir,noise_files(j,:)));
