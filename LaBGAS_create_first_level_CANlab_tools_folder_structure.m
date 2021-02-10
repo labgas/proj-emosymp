@@ -41,7 +41,7 @@ cd(modeldir);
 cellfun(sm,subjs); % applies function sm to all cells of subjs
 
 %% loop over subjects to copy and move the onsets, noise_regs, functional scans, and fmriprep confound files to subdirectories per run
-for i=54:size(subjs,1)
+for i=1:size(subjs,1)
     subjmodeldir=fullfile(modeldir,subjs{i});
     subjderivdir=fullfile(derivdir,subjs{i},'func');
     cd(subjderivdir);
