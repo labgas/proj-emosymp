@@ -32,6 +32,15 @@
 % 1. estimated first level models in DSGN.modeldir
 % 2. a directory and settings for diagnostics obtained by calling
 % LaBGAS_3_spm_diagnose_firstlvl_models.m
+%
+% analysis_method
+% 'classic'
+% classic SPM first level GLM design with one regressor per condition per
+% run
+% 'single_trial'
+% single trial first level GLM design with one regressor per trial for
+% conditions specific in DSGN.singletrials in
+% LaBGAS_get_single_trial_dsgn_obj.m
 %__________________________________________________________________________
 %
 % authors: 
@@ -42,8 +51,8 @@
 % date:   October, 2020
 %
 %__________________________________________________________________________
-% @(#)% LaBGAS_2_spm_fit_firstlvl_models.m         v1.1        
-% last modified: 2021/02/10
+% @(#)% LaBGAS_2_spm_fit_firstlvl_models.m         v1.2        
+% last modified: 2021/02/11
 %
 %% settings
 % addpath(genpath('C:\Users\lukas\Documents\GitHub\CanlabCore')); % add relevant CANlab tools folders and spm to Matlab path if they are not there yet - I have saved them on my Matlab path permanently hence do not need this
@@ -51,10 +60,21 @@
 % addpath(genpath('C:\Users\lukas\Documents\MATLAB\spm12'));
 addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add our local path to the LaBGAS Github repo for this project
 
-DSGN = LaBGAS_get_firstlvl_dsgn_obj(); % calls function to write DSGN structure array to your Matlab workspace
+analysis_method = 'single_trial';
+
+%% call function to create DSGN structure array
+if strcmpi(analysis_method,'classic')==1
+    DSGN = LaBGAS_get_firstlvl_dsgn_obj();
+elseif strcmpi(analysis_method,'single_trial')==1
+    DSGN = LaBGAS_get_single_trial_dsgn_obj();
+else
+    error('invalid analysis_method option, correct in settings');
+end
+
+%% code to run analysis and diagnostics, and publish report
 sid = dir([DSGN.modeldir,'\sub-*']);
-%% code
 for i = 1:size(DSGN.subjects,2) % iter over subj
+
 %% fit first levels
 fprintf('Running on subject directory %s\n',DSGN.subjects{i});
 canlab_glm_subject_levels(DSGN,'subjects',DSGN.subjects(i));
