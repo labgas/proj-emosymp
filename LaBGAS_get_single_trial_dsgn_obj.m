@@ -1,4 +1,4 @@
-%% LaBGAS_get_firstlvl_dsgn_obj
+%% LaBGAS_get_single_trial_dsgn_obj
 %
 % This script contains a function that defines a number of fields of 
 % the CANlab style first level DSGN structure array
@@ -47,7 +47,7 @@
 % date:   October, 2020
 %
 %__________________________________________________________________________
-% @(#)% LaBGAS_get_firstlvl_dsgn_obj.m         v1.1        
+% @(#)% LaBGAS_get_single_trial_dsgn_obj.m         v1.1        
 % last modified: 2021/02/11
 %
 %% function code
