@@ -58,6 +58,15 @@
 % use the CANlab option
 % USE THIS OPTION IF YOU WANT TO USE ICA-AROMA
 %
+% analysis_method
+% 'classic'
+% classic SPM first level GLM design with one regressor per condition per
+% run
+% 'single_trial'
+% single trial first level GLM design with one regressor per trial for
+% conditions specific in DSGN.singletrials in
+% LaBGAS_get_single_trial_dsgn_obj.m
+%
 % maskTRs
 % number of initial volumes you want to mask/regress out
 % this is an option built in by @bogpetre which we typically don't use/need
@@ -69,7 +78,7 @@
 % enter cell array with names of conditions you want to
 % include in your first level model
 % NAMES AND ORDER NEED TO CORRESPOND WITH DSGN.conditions created by 
-% LaBGAS_get_firstlvl_dsgn_obj.m
+% LaBGAS_get_firstlvl_dsgn_obj.m or LaBGAS_get_single_trial_dsgn_obj.m
 %__________________________________________________________________________
 %
 % authors: 
@@ -80,27 +89,36 @@
 % date:   October, 2020
 %
 %__________________________________________________________________________
-% @(#)% LaBGAS_1_spm_prep_firstlvl_models.m         v1.1        
-% last modified: 2021/02/09
+% @(#)% LaBGAS_1_spm_prep_firstlvl_models.m         v1.2        
+% last modified: 2021/02/11
 %
-%% settings
 
+%% settings
 % addpath(genpath('C:\Users\lukas\Documents\GitHub\CanlabCore')); % add relevant CANlab tools folders and spm to Matlab path if they are not there yet
 % addpath(genpath('C:\Users\lukas\Documents\GitHub\CanlabPrivate'));
 % addpath(genpath('C:\Users\lukas\Documents\MATLAB\spm12'));
 addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add our local path to the LaBGAS Github repo for this project
 
-DSGN = LaBGAS_get_firstlvl_dsgn_obj(); % calls function to write DSGN structure array to your Matlab workspace
 useAROMA = false; % set to true if you want to use ICA-AROMA
 noise_method = 'LaBGAS';
+analysis_method = 'single_trial';
 maskTRs = 0;
 conds2model = {'negative','neutral','positive','scoring'}; % cell array with names of conditions you want to model - see documentation above
+
+%% call function to create DSGN structure array
+if strcmpi(analysis_method,'classic')==1
+    DSGN = LaBGAS_get_firstlvl_dsgn_obj();
+elseif strcmpi(analysis_method,'single_trial')==1
+    DSGN = LaBGAS_get_single_trial_dsgn_obj();
+else
+    error('invalid analysis_method option, correct in settings');
+end
 
 %% extract model data, perform sanity check and save it
 % @bogpetre: serial processing because invoking 'save' in parallel requires
 % inelegant hacks
 subjs = dir([DSGN.modeldir,'\sub-*']);
-for i = 1:size(DSGN.subjects,2) % iter over subj
+for i = 2:size(DSGN.subjects,2) % iter over subj
     for j = 1:size(DSGN.funcnames,2)
     nii = dir([DSGN.subjects{i},'\',DSGN.funcnames{j}]);
         if ~isempty(nii) % if has nii
@@ -233,7 +251,7 @@ for i = 1:size(DSGN.subjects,2) % iter over subj
                 R=table2array(R);
                 
             else
-                error('invalid noise_method option');
+                error('invalid noise_method option, correct in settings');
             end
             
             % do a sanity check on design info
