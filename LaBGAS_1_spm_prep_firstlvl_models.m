@@ -118,7 +118,7 @@ end
 % @bogpetre: serial processing because invoking 'save' in parallel requires
 % inelegant hacks
 subjs = dir([DSGN.modeldir,'\sub-*']);
-for i = 2:size(DSGN.subjects,2) % iter over subj
+for i = 1:size(DSGN.subjects,2) % iter over subj
     for j = 1:size(DSGN.funcnames,2)
     nii = dir([DSGN.subjects{i},'\',DSGN.funcnames{j}]);
         if ~isempty(nii) % if has nii
