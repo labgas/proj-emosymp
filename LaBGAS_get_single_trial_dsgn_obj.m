@@ -126,4 +126,8 @@ function DSGN = LaBGAS_get_single_trial_dsgn_obj()
 %     DSGN.contrastweights{5} = [1 0 -1];
 %     DSGN.contrastnames{6} = 'positive versus neutral'; 
 %     DSGN.contrastweights{6} = [0 -1 1];
+
+    % REPORTS
+    % optional fields
+    DSGN.timingcheck = true; % default:false; if true, generates timing check reports using canlab_glm_subject_levels_timingcheck.m
 end
