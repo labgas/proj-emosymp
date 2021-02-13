@@ -55,7 +55,7 @@ for i=1:size(subjs,1)
     if ~isequal(nr_noise_files,nr_onset_files,size(niigz_files,1),size(fmriprepconf_files,1))
         error('number of onset, noise, functional, and fmriprep confound files does not match');
     else
-        for j=1:size(niigz_files,1)
+        for j=1:size(niigz_files,1) % lukasvo76 note: there must be a shorter way to program this loop, perhaps with while loop or second level loop for k=1:(size(niigzfiles,1)-1) within the elseif statement - to be tested and adapted for a future study
             gunzip(niigz_files{j});
             niifile=ls('s6*.nii');
                 if contains(niifile,runnames{j})
@@ -92,6 +92,14 @@ for i=1:size(subjs,1)
                 elseif contains(niifile,runnames{j+4})
                     warning(strcat(runnames{j+4},'_missing_in_',subjs{i}));
                     rundir=fullfile(subjderivdir,runnames{j+4});
+                    movefile(fullfile(subjderivdir,niifile),fullfile(rundir,niifile));
+                    movefile(fullfile(subjderivdir,onset_files(j,:)),fullfile(rundir,onset_files(j,:)));
+                    movefile(fullfile(subjderivdir,noise_files(j,:)),fullfile(rundir,noise_files(j,:)));
+                    copyfile(fullfile(subjderivdir,fmriprepconf_files{j,:}),fullfile(rundir,fmriprepconf_files{j,:}));
+                    delete(niigz_files{j});
+                elseif contains(niifile,runnames{j+5})
+                    warning(strcat(runnames{j+5},'_missing_in_',subjs{i}));
+                    rundir=fullfile(subjderivdir,runnames{j+5});
                     movefile(fullfile(subjderivdir,niifile),fullfile(rundir,niifile));
                     movefile(fullfile(subjderivdir,onset_files(j,:)),fullfile(rundir,onset_files(j,:)));
                     movefile(fullfile(subjderivdir,noise_files(j,:)),fullfile(rundir,noise_files(j,:)));
