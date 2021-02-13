@@ -87,10 +87,12 @@ function DSGN = LaBGAS_get_single_trial_dsgn_obj()
     % MODELING
     % required fields: cell array (one cell per session) of cell arrays (one cell per condition) of MAT-file names; if only one session is specified, it will be applied to all sessions
     c=0;
-    c=c+1;DSGN.conditions{1}{c}='negative';
-    c=c+1;DSGN.conditions{1}{c}='neutral';
-    c=c+1;DSGN.conditions{1}{c}='positive';
-    c=c+1;DSGN.conditions{1}{c}='scoring';
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
     % optional fields
 %     DSGN.pmods = {{}}; % cell array (one cell per session) of cell arrays (one cell per condition) of cell arrays (one cell per modulator) of MAT-file names
 %     DSGN.convolution; default hrf.derivs = [0 0]; structure specifying the convolution to use for conditions different fields required depending on convolution type; 
