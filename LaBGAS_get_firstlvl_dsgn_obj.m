@@ -60,7 +60,7 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
         this_f = fnames(i);
             runs = dir([this_f.folder, '\', this_f.name, '\func\sub*.tsv']);
             if length(runs) > 1 % only include subject if it has at least two runs - this should be the case in all subjects for this study - check trouble_in_paradise.xlsx
-                DSGN.subjects = [DSGN.subjects, [this_f.folder, '\', this_f.name]];
+                DSGN.subjects = [DSGN.subjects, [this_f.folder, '\', this_f.name]]; % cell array of subject directories (absolute paths)
             end
     end
     DSGN.funcnames = {'func\run-1\s6*.nii',...
@@ -68,7 +68,7 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
         'func\run-3\s6*.nii',...
         'func\run-4\s6*.nii',...
         'func\run-5\s6*.nii',...
-        'func\run-6\s6*.nii'}; % cell array of subject directories (absolute paths)	
+        'func\run-6\s6*.nii'}; % cell array (one cell per session) of paths to functional files, relative to absolute path specific in DSGN.subjects
     % optional fields
     DSGN.concatenation = {}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly
     DSGN.allowmissingfunc = true; % default; true will prevent erroring out when functional file is missing
@@ -83,10 +83,12 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
     % MODELING
     % required fields: cell array (one cell per session) of cell arrays (one cell per condition) of MAT-file names; if only one session is specified, it will be applied to all sessions
     c=0;
-    c=c+1;DSGN.conditions{1}{c}='negative';
-    c=c+1;DSGN.conditions{1}{c}='neutral';
-    c=c+1;DSGN.conditions{1}{c}='positive';
-    c=c+1;DSGN.conditions{1}{c}='scoring';
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
+    c=c+1;DSGN.conditions{c}={'negative' 'neutral' 'positive' 'scoring'};
     % optional fields
 %     DSGN.pmods = {{}}; % cell array (one cell per session) of cell arrays (one cell per condition) of cell arrays (one cell per modulator) of MAT-file names
 %     DSGN.convolution; default hrf.derivs = [0 0]; structure specifying the convolution to use for conditions different fields required depending on convolution type; 
