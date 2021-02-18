@@ -1,7 +1,9 @@
 %% LaBGAS_copy_con_imgs_CANlab_folder_struct
 %
-% This simple script copies con2-4 images (pos, neu, neg) from subject/results folders in the root directory to
-% subject folders in \fMRI_emotion_Giao\CANlab_second_level_analysis\data
+% This simple script copies con1-3 images (pos, neu, neg) from
+% rootdir\firstlevel\model_x_yyy\sub-zz\ to
+% rootdir\secondlevel\model_x_yyy\con_images\sub-zz
+% to prepare second level analysis with CANlab batch scripts
 %
 %__________________________________________________________________________
 %
@@ -11,35 +13,34 @@
 % @(#)% LaBGAS_copy_con_imgs_CANlab_folder_struct     v1.1        
 % last modified: 2021/02/18
 
-%% define directories
-rootdir='C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao';
-canlabdatadir=fullfile(rootdir,'CANlab_second_level_analysis\data');
+%% define model and directories
+conimgs2copy=[1:3]; % numbers of con images to copy
+model='model_1_CANlab_classic_GLM';
+rootdir='C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS';
+firstleveldir=fullfile(rootdir,'firstlevel\',model);
+secondleveldir=fullfile(rootdir,'secondlevel\',model);
+conimgsdir=fullfile(secondleveldir,'\con_images');
 
-%% get subject folder names from rootdir
-cd(rootdir);
-hcs=dir('HC_*');
-idh=[hcs.isdir]';
-hcs={hcs(idh).name}';
-pts=dir('PT_*');
-idp=[pts.isdir]';
-pts={pts(idp).name}';
-subjs=[hcs;pts];
+%% get subject directory names from firstleveldir
+cd(firstleveldir);
+subjs = dir([firstleveldir,'\sub-*']);
+subjs = {subjs(:).name}';
 
 %% define anonymous function sm to write folder structure with cell array of folder names as input
 sm=@(x)spm_mkdir(x); % defines spm_mkdir as an anonymous function sm
 
-%% write folder structure in \fMRI_emotion_Giao\CANlab_second_level_analysis\data
-cd(canlabdatadir);
+%% write folder structure in conimgsdir
+cd(conimgsdir);
 cellfun(sm,subjs); % applies function sm to all cells of subjs
 
 %% loop over subjects to copy the relevant con images over
-for i=1:size(subjs,1)
-    subjfirstleveldir=fullfile(rootdir,subjs{i},'results');
-    subjcanlabdatadir=fullfile(canlabdatadir,subjs{i});
+for i=2:size(subjs,1)
+    subjfirstleveldir=fullfile(firstleveldir,subjs{i});
+    subjconimgsdir=fullfile(conimgsdir,subjs{i});
     cd(subjfirstleveldir);
-    con_images=ls('con*.nii');
-    con_images=con_images(2:4,:);
-        for j=1:size(con_images,1)
-            copyfile(fullfile(subjfirstleveldir,con_images(j,:)),fullfile(subjcanlabdatadir,con_images(j,:)));
+    conimgs=ls('con*.nii');
+    conimgs=conimgs(conimgs2copy,:);
+        for j=1:size(conimgs,1)
+            copyfile(fullfile(subjfirstleveldir,conimgs(j,:)),fullfile(subjconimgsdir,conimgs(j,:)));
         end
 end
