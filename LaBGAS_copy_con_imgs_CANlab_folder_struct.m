@@ -19,7 +19,7 @@ model='model_1_CANlab_classic_GLM';
 rootdir='C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS';
 firstleveldir=fullfile(rootdir,'firstlevel\',model);
 secondleveldir=fullfile(rootdir,'secondlevel\',model);
-conimgsdir=fullfile(secondleveldir,'\con_images');
+conimgsdir=fullfile(secondleveldir,'\data');
 
 %% get subject directory names from firstleveldir
 cd(firstleveldir);
