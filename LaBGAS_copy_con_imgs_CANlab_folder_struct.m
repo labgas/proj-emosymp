@@ -34,7 +34,7 @@ cd(conimgsdir);
 cellfun(sm,subjs); % applies function sm to all cells of subjs
 
 %% loop over subjects to copy the relevant con images over
-for i=2:size(subjs,1)
+for i=1:size(subjs,1)
     subjfirstleveldir=fullfile(firstleveldir,subjs{i});
     subjconimgsdir=fullfile(conimgsdir,subjs{i});
     cd(subjfirstleveldir);
