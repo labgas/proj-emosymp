@@ -82,4 +82,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+### CANlab tools output ###
+*.html
+*.png
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,microsoftoffice,matlab
