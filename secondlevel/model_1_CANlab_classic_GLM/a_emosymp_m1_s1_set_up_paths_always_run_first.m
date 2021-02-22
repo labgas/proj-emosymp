@@ -24,20 +24,38 @@
 % - saved in results folder:
 %   figures
 %   html report with figures and stats, in "published_output"
+%
+% LUKASVO76's NOTES
+% - this script is copied and edited from 
+%   https://github.com/canlab/CANlab_help_examples/tree/master/Second_level_analysis_template_scripts/b_copy_to_local_scripts_dir_and_modify
+% - as described in the documentation in https://canlab.github.io/batch/, 
+%   you can first type a_set_up_new_analysis_folder_and_scripts 
+%   in your Matlab command window and run it to automatically 
+%   set up folder structure according to CANlab conventions and
+%   copy in some of the CANlab template scripts, including the present one,
+%   automatically; an alternative is to copy and edit that script
+%   to adapt your folder structure for example according to BIDS convention
+% - to check whether the correct dependencies are on your Matlab path, you
+%   may want to run a2_second_level_toolbox_check_dependencies from your
+%   Matlab command line as is from the CANlab_help_examples repo, no need
+%   for study-specific edits!
+% - if you wish to change the default options for some of the prep scripts,
+%   you should copy the script a2_set_default_options which is called by
+%   this script to your local scripts directory, rename and adapt what you want
+%   DO NOT CHANGE THE VERSION OF THAT SCRIPT IN THE CANLAB OR LABGAS GITHUB FOLDER 
+%   WHERE IT LIVES ORIGINALLY, at least not without branching or forking!
 
 % Set base directory
 % --------------------------------------------------------
 
-% Base directory for whole study/analysis
+% lukasvo76: Base directory for your second level model
 
-<<<EDIT A COPY OF THIS IN YOUR LOCAL SCRIPTS DIRECTORY AND DELETE THIS LINE AND THE FOLLOWING ONE>>>
-<<<EDIT THE ONE LINE DEFINING "basedir" BELOW ONLY>>>
-basedir = '/Users/tor/Google_Drive/SHARED_DATASETS_gdrive/A_Multi_lab_world_map/2017_MID_Meffert';
+basedir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\secondlevel\model_1_CANlab_classic_GLM';
 
 % Set user options
 % --------------------------------------------------------
 
-a2_set_default_options
+a2_emosymp_m1_s2_set_default_options % lukasvo76: referring to renamed study- and model-specific script here, as I want to customize the default option - see my note in documentation above
 
 % Set up paths
 % --------------------------------------------------------
@@ -46,7 +64,7 @@ cd(basedir)
 
 datadir = fullfile(basedir, 'data');
 resultsdir = fullfile(basedir, 'results');
-scriptsdir = fullfile(basedir, 'scripts');
+scriptsdir = 'C:\Users\lukas\Documents\GitHub\proj-emosymp\secondlevel\model_1_CANlab_classic_GLM'; % lukasvo76 contrary to CANlab structure, I want my second level script to live in my Github local working dir for this study
 figsavedir = fullfile(resultsdir, 'figures');
 notesdir = fullfile(resultsdir, 'notes');
 
@@ -54,12 +72,6 @@ addpath(scriptsdir)
 
 if ~exist(resultsdir, 'dir'), mkdir(resultsdir); end
 if ~exist(figsavedir, 'dir'), mkdir(figsavedir); end
-
-% You may need this, but now should be in CANlab Private repository
-% g = genpath('/Users/tor/Documents/matlab_code_external/spider');
-% addpath(g)
-
-a2_set_default_options
 
 % Display helper functions: Called by later scripts
 % --------------------------------------------------------
