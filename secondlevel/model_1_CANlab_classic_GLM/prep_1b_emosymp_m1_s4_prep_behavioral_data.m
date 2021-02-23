@@ -51,22 +51,77 @@
 % structure, important information saved during the data prep (prep_2...,
 % prep_3...) process will be missing, and you will need to re-run the whole
 % prep sequence.
+%
+% @LUKASVO76 NOTES
+% - this is a custom script based on the two prep_1b CANlab example
+%   scripts
 
-%% READ behavioral data from file. These data will be put into standard structure compatible with analyses
 
-<<<EDIT A COPY OF THIS IN YOUR LOCAL SCRIPTS DIRECTORY AND DELETE THIS LINE>>>
-
-behavioral_data_filename = 'sedation_scores_for_tor.xlsx';
-behavioral_fname_path = fullfile(datadir, behavioral_data_filename);
+%% CUSTOM CODE: READ behavioral data from files. These data will be put into standard structure compatible with analyses
+% phenotype.tsv BIDS file
+rootdir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS';
+behavioral_data_filename = 'Phenotype_subject.tsv';
+phenodir = fullfile(rootdir,'phenotype');
+behavioral_fname_path = fullfile(phenodir, behavioral_data_filename);
 
 if ~exist(behavioral_fname_path, 'file'), fprintf(1, 'CANNOT FIND FILE: %s\n',behavioral_fname_path); end
 
-behavioral_data_table = readtable(behavioral_fname_path,'FileType','spreadsheet');
+behavioral_data_table = readtable(behavioral_fname_path,'TreatAsEmpty','n/a','FileType', 'text', 'Delimiter', 'tab'); % read .tsv file into Matlab table format
+behavioral_data_table = sortrows(behavioral_data_table,'subject_id'); % sort table on subject_id variable
+behavioral_data_table.patient(behavioral_data_table.patient == 0) = -1; % reference coding (-1 1) rather than effects coding (0 1) needed for group variable - see below
+behavioral_data_table((behavioral_data_table.included == 0),:) = []; % delete rows of excluded subjects
+behavioral_data_table.id = [1:height(behavioral_data_table)]'; % create consecutively numbered subject idx
+
+% participants.tsv BIDS file
+participants_data_filename = 'participants.tsv';
+participants_fname_path = fullfile(rootdir, participants_data_filename);
+
+if ~exist(participants_fname_path, 'file'), fprintf(1, 'CANNOT FIND FILE: %s\n',participants_fname_path); end
+
+participants_data_table = readtable(participants_fname_path,'TreatAsEmpty','n/a','FileType', 'text', 'Delimiter', 'tab'); % read .tsv file into Matlab table format
+participants_data_table = sortrows(participants_data_table,'subject_id'); % sort table on subject_id variable
+participants_data_table.patient(participants_data_table.patient == 0) = -1; % reference coding (-1 1) rather than effects coding (0 1) needed for group variable - see below
+participants_data_table((participants_data_table.included == 0),:) = []; % delete rows of excluded subjects
+participants_data_table.id = [1:height(participants_data_table)]'; % create consecutively numbered subject idx
+
+% sanity check before joining both tables on key (i.e. common) variables -
+% see documentation for join function for more info
+keyvariables = intersect(behavioral_data_table.Properties.VariableNames, participants_data_table.Properties.VariableNames);
+for i=1:size(keyvariables,2)
+    idx(i)=isequal(behavioral_data_table.(keyvariables{i}),participants_data_table.(keyvariables{i}));
+end
+
+if sum(idx)==size(keyvariables,2)
+    behavioral_data_table = join(behavioral_data_table,participants_data_table);
+else error (strcat ("common variables of ",behavioral_data_filename," and " ,participants_data_filename," do not match"))
+end
+
+% calculate contrasts between ratings, and zscore them
+% NOTE: respect the order of the raw rating variables in the table - first NA, then symptoms)
+behavioral_data_table.NA_neg_neu = zscore((behavioral_data_table.NA_neg - behavioral_data_table.NA_neu),0,'omitnan'); % respect the order of DAT.contrastnames defined in prep_1
+behavioral_data_table.NA_neg_pos = zscore((behavioral_data_table.NA_neg - behavioral_data_table.NA_pos),0,'omitnan');
+behavioral_data_table.NA_pos_neu = zscore((behavioral_data_table.NA_pos - behavioral_data_table.NA_neu),0,'omitnan'); 
+behavioral_data_table.symptoms_neg_neu = zscore((behavioral_data_table.symptoms_neg - behavioral_data_table.symptoms_neu),0,'omitnan'); % respect the order of DAT.contrastnames defined in prep_1
+behavioral_data_table.symptoms_neg_pos = zscore((behavioral_data_table.symptoms_neg - behavioral_data_table.symptoms_pos),0,'omitnan');
+behavioral_data_table.symptoms_pos_neu = zscore((behavioral_data_table.symptoms_pos - behavioral_data_table.symptoms_neu),0,'omitnan'); 
+
+% zscore raw ratings too
+% NOTE: order does not matter here as variables already exist in table
+behavioral_data_table.NA_neg = zscore(behavioral_data_table.NA_neg,0,'omitnan');
+behavioral_data_table.NA_neu = zscore(behavioral_data_table.NA_neu,0,'omitnan');
+behavioral_data_table.NA_pos = zscore(behavioral_data_table.NA_pos,0,'omitnan');
+behavioral_data_table.symptoms_neg = zscore(behavioral_data_table.symptoms_neg,0,'omitnan');
+behavioral_data_table.symptoms_neu = zscore(behavioral_data_table.symptoms_neu,0,'omitnan');
+behavioral_data_table.symptoms_pos = zscore(behavioral_data_table.symptoms_pos,0,'omitnan');
 
 % Add to DAT for record, and flexible use later
 DAT.BEHAVIOR.behavioral_data_table = behavioral_data_table;
 
+
 %% INITIALIZE GROUP VARIABLE
+
+% Initialize empty variables
+DAT.BETWEENPERSON = [];
 
 % Single group variable, optional, for convenience
 % These fields are mandatory, but they can be empty
@@ -90,9 +145,6 @@ DAT.BETWEENPERSON.groupcolors = {};
 % If no variables are entered (empty elements), only
 % within-person/whole-group effects will be analyzed.
 
-% Initialize empty variables
-DAT.BETWEENPERSON = [];
-
 % Between-person variables influencing each condition
 % Table of [n images in condition x q variables]
 % names in table can be any valid name.
@@ -108,7 +160,6 @@ DAT.BETWEENPERSON.contrasts = cell(1, length(DAT.contrastnames));
 [DAT.BETWEENPERSON.contrasts{:}] = deal(table());  % empty tables
 
 
-
 %% CUSTOM CODE: TRANSFORM INTO between_design_table
 %
 % Create a table for each condition/contrast with the between-person design, or leave empty.
@@ -116,111 +167,28 @@ DAT.BETWEENPERSON.contrasts = cell(1, length(DAT.contrastnames));
 % a variable called 'id' contains subject identfiers.  Other variables will
 % be used as regressors.  Variables with only two levels should be effects
 % coded, with [1 -1] values.
-%
-% 
-% e.g., Vars of interest
-%
-%   12×1 cell array
-% 
-%     'Subject'
-%     'SALINESEDATION'
-%     'REMISEDATION'
-%     'ORDER'
-%     'MSALINEINTENSITY'
-%     'MSALINEUNPL'
-%     'MREMIINTENSITY'
-%     'MREMIUNPL'
-%     'SSALINEINTENSITY'
-%     'SSALINEUNPL'
-%     'SREMIINTENSITY'
-%     'SREMIUNPL'
-% 
-%   6×1 cell array
-% 
-%     'Sal vs Remi ResistStrong'
-%     'Sal vs Remi AntStrong'
-%     'AntLinear Sal'
-%     'AntLinear Remi'
-%     'ResistStrong vs Weak Sal'
-%     'ResistStrong vs Weak Remi'
 
-% Enter the behavioral grouping codes (1, -1) for individual differences in each 
-% condition or contrast here.  You can enter them separately for
-% conditions/contrasts, or skip this code block and just enter a single
-% variable in DAT.BETWEENPERSON.group below, which will be used for all
-% conditions and contrasts.
-%
-% Contrast numbers below refer to the contrasts you entered and named in the prep_1_
-% script.  The numbers refer to the rows of the contrast matrix you entered.
-%
-% Often, you will want to use the same behavioral variable for multiple
-% contrasts.  If  you have different between-person covariates for different
-% contrasts, e.g., I-C RT for I-C images and ratings or diagnosis for
-% emotion contrasts, you can enter different behavioral variables in the
-% different cells.  Ditto for conditions.
+id = DAT.BEHAVIOR.behavioral_data_table.id;
+group = DAT.BEHAVIOR.behavioral_data_table.patient;
+covs = DAT.BEHAVIOR.behavioral_data_table.Properties.VariableNames(contains(DAT.BEHAVIOR.behavioral_data_table.Properties.VariableNames,'NA') | contains(DAT.BEHAVIOR.behavioral_data_table.Properties.VariableNames,'symptoms')); % we want to be able to use the calculated (contrasts between) ratings as covariates for the respective brain conditions/contrasts flexibly
 
-id = behavioral_data_table.Subject;
+for i = 1:length(DAT.conditions)
 
-Cov = behavioral_data_table.SSALINEINTENSITY - behavioral_data_table.SREMIINTENSITY;
-covname = 'Intensity_Saline_vs_Remi';
-mytable = table(id);
-mytable.(covname) = Cov;
+DAT.BETWEENPERSON.conditions{i}.group = group;
+DAT.BETWEENPERSON.conditions{i}.NA_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{i}); % we can include the raw NA ratings for each condition here, but note that this will include these as covariate in all analyses on conditions!
 
-DAT.BETWEENPERSON.contrasts{1} = mytable;
+end
 
-Cov = behavioral_data_table.SSALINEINTENSITY - behavioral_data_table.SREMIINTENSITY;
-covname = 'Intensity_Saline_vs_Remi';
-mytable = table(id);
-mytable.(covname) = Cov;
+for j = 1:length(DAT.contrasts)
 
-DAT.BETWEENPERSON.contrasts{2} = mytable;
+DAT.BETWEENPERSON.contrasts{j}.group = group;
+DAT.BETWEENPERSON.contrasts{j}.NA_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{(length(DAT.conditions)*2)+j}); % we include the calculated contrasts between conditions on NA ratings here, they come after the NA and symptom ratings for conditions, to include those as covariate in our analysis on contrasts
 
-Cov = behavioral_data_table.SSALINEINTENSITY - behavioral_data_table.MSALINEINTENSITY;
-covname = 'Intensity_Str_vs_Mild_Saline';
-mytable = table(id);
-mytable.(covname) = Cov;
+end
 
-DAT.BETWEENPERSON.contrasts{3} = mytable;
-
-Cov = behavioral_data_table.SREMIINTENSITY - behavioral_data_table.MREMIINTENSITY;
-covname = 'Intensity_Str_vs_Mild_Remi';
-mytable = table(id);
-mytable.(covname) = Cov;
-
-DAT.BETWEENPERSON.contrasts{4} = mytable;
-
-Cov = behavioral_data_table.SSALINEINTENSITY - behavioral_data_table.MSALINEINTENSITY;
-covname = 'Intensity_Str_vs_Mild_Saline';
-mytable = table(id);
-mytable.(covname) = Cov;
-
-DAT.BETWEENPERSON.contrasts{5} = mytable;
-
-Cov = behavioral_data_table.SREMIINTENSITY - behavioral_data_table.MREMIINTENSITY;
-covname = 'Intensity_Str_vs_Mild_Remi';
-mytable = table(id);
-mytable.(covname) = Cov;
-
-DAT.BETWEENPERSON.contrasts{6} = mytable;
-
-% Single group variable, optional, for convenience
-% These fields are mandatory, but they can be empty
-%
-% Make sure:
-% - DAT.BETWEENPERSON.group is a numeric vector,  coded 1, -1
-% - If you have string inputs, the function string2indicator can help
-% transform them to numbers
-% - If you have numeric codes that are not 1, -1 then contrast_code can
-% help recode them.
-%
-% Group can be empty.
-% -------------------------------------------------------------------------
-group = behavioral_data_table.ORDER;
-[~, nms, group] = string2indicator(group);
-
-DAT.BETWEENPERSON.group = contrast_code(group  - 1.5);
-DAT.BETWEENPERSON.group_descrip = '-1 is first group name, 1 is 2nd';
-DAT.BETWEENPERSON.groupnames = nms;
+% DAT.BETWEENPERSON.group = group; 
+% lukasvo76: seems redundant if you define contrasts{i}.group
+DAT.BETWEENPERSON.groupnames = {'control' 'patient'};
 DAT.BETWEENPERSON.groupcolors = {[.7 .3 .5] [.3 .5 .7]};
 
 %% Check DAT, print warnings, save DAT structure
