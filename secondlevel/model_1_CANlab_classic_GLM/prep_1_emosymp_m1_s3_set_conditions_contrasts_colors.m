@@ -3,8 +3,6 @@
 %% Set up conditions 
 % ------------------------------------------------------------------------
 
-<<<EDIT A COPY OF THIS IN YOUR LOCAL SCRIPTS DIRECTORY AND DELETE THIS LINE>>>
-
 % conditions = {'C1' 'C2' 'C3' 'etc'};
 % structural_wildcard = {'c1*nii' 'c2*nii' 'c3*nii' 'etc*nii'};
 % functional_wildcard = {'fc1*nii' 'fc2*nii' 'fc3*nii' 'etc*nii'};
@@ -43,7 +41,7 @@ DAT = struct();
 % contain a string specifying the condition name to be used in plots and
 % tables. This does not have to correspond to an image/directory name.
 
-DAT.conditions = {'Pain' 'Nausea' 'Itch'};
+DAT.conditions = {'Negative' 'Neutral' 'Positive'};
 
 DAT.conditions = format_strings_for_legend(DAT.conditions);
 
@@ -77,6 +75,11 @@ DAT.conditions = format_strings_for_legend(DAT.conditions);
 % for condition 2.  The result
 % would be that we'd list files in
 % [basedir]/data/*/pain.nii for condition 1, and [basedir]/data/*/itch.nii
+%
+% NOTE @lukasvo76
+% this does unfortunately not work on Windows as it does not
+% accept wildcards before the last \, but is easily solved by using
+% spm_select in the prep_2 script
 
 % Names of subfolders in [basedir]/data
 % Enter a cell array { } with one cell per condition.  Each cell should
@@ -84,7 +87,7 @@ DAT.conditions = format_strings_for_legend(DAT.conditions);
 % condition. 
 % If you do not have subfolders, it is OK to leave this empty, i.e., DAT.subfolders = {};
 
-DAT.subfolders = {'Pain_copes' 'Nausea_cope4m1' 'Itch_copes_combo'};
+DAT.subfolders = {};
 
 % Names of wildcard (expression with *, [1-9], 
 % Enter a cell array { } with one cell per condition.  Each cell should
@@ -92,7 +95,11 @@ DAT.subfolders = {'Pain_copes' 'Nausea_cope4m1' 'Itch_copes_combo'};
 % condition. 
 
 DAT.structural_wildcard = {};
-DAT.functional_wildcard = {'cope3*nii' 'cope4*nii' 'cope1*nii'};
+DAT.functional_wildcard = {'^con_0001.*\.nii$' '^con_0002.*\.nii$' '^con_0003.*\.nii$'};
+
+% NOTE @lukasvo76
+% since we use spm_select in prep_2 script, wildcards need to be
+% written using regular expressions as this is what the filter in spm_select uses
 
 % Set Contrasts
 % ------------------------------------------------------------------------
@@ -126,11 +133,11 @@ DAT.functional_wildcard = {'cope3*nii' 'cope4*nii' 'cope1*nii'};
 % sets of images, where the ith image is from the ith subject for all
 % conditions).
 
-DAT.contrasts = [1 0 0; 0 1 0; 0 0 1];
+DAT.contrasts = [1 -1 0; 1 0 -1; 0 -1 1];
     
 % Descriptive names for contrasts to be used in plots and tables. Avoid
 % special characters.
-DAT.contrastnames = {'Pain' 'Nausea' 'Itch'};
+DAT.contrastnames = {'Negative v Neutral' 'Negative v Positive' 'Positive v Neutral'};
 
 DAT.contrastnames = format_strings_for_legend(DAT.contrastnames);
 
@@ -178,11 +185,10 @@ disp('SET up conditions, colors, contrasts in DAT structure.');
 
 % Matrix of [n contrasts x k conditions]
 
-DAT.between_condition_cons = [1 -1 0;
-                              1 0 -1];
-
-DAT.between_condition_contrastnames = {'Pain vs Nausea' 'Pain vs Itch'};
-          
-DAT.between_condition_contrastcolors = custom_colors ([.2 .2 .8], [.2 .8 .2], size(DAT.between_condition_cons, 1));
+% DAT.between_condition_cons = [];
+% 
+% DAT.between_condition_contrastnames = {};
+%           
+% DAT.between_condition_contrastcolors = custom_colors ([.2 .2 .8], [.2 .8 .2], size(DAT.between_condition_cons, 1));
 
 
