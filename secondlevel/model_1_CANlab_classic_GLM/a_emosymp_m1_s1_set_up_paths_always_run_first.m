@@ -64,11 +64,13 @@ cd(basedir)
 
 datadir = fullfile(basedir, 'data');
 resultsdir = fullfile(basedir, 'results');
-scriptsdir = 'C:\Users\lukas\Documents\GitHub\proj-emosymp\secondlevel\model_1_CANlab_classic_GLM'; % lukasvo76 contrary to CANlab structure, I want my second level script to live in my Github local working dir for this study
+scriptsdir = 'C:\Users\lukas\Documents\GitHub\proj-emosymp\secondlevel\model_1_CANlab_classic_GLM'; % lukasvo76: contrary to CANlab structure, I want my second level scripts to live in my Github local working dir for this study
 figsavedir = fullfile(resultsdir, 'figures');
 notesdir = fullfile(resultsdir, 'notes');
+canlabhelpexamplesdir = 'C:\Users\lukas\Documents\GitHub\CANlab_help_examples_LaBGAS_fork\CANlab_help_examples'; % lukasvo76: we want the LaBGAS fork of CANlab_help_examples here!
 
 addpath(scriptsdir)
+addpath(genpath(canlabhelpexamplesdir))
 
 if ~exist(resultsdir, 'dir'), mkdir(resultsdir); end
 if ~exist(figsavedir, 'dir'), mkdir(figsavedir); end
