@@ -209,5 +209,5 @@ end
 printhdr('Save results');
 
 savefilename = fullfile(resultsdir, 'image_names_and_setup.mat');
-save(savefilename, 'DAT', '-append');
+save(savefilename, 'DAT');
 
