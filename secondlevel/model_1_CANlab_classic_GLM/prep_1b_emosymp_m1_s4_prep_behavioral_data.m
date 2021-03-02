@@ -186,7 +186,7 @@ DAT.BETWEENPERSON.contrasts{j}.NA_rating = DAT.BEHAVIOR.behavioral_data_table.(c
 
 end
 
-% DAT.BETWEENPERSON.group = group; 
+DAT.BETWEENPERSON.group = group; 
 % lukasvo76: seems redundant if you define contrasts{i}.group
 DAT.BETWEENPERSON.groupnames = {'control' 'patient'};
 DAT.BETWEENPERSON.groupcolors = {[.7 .3 .5] [.3 .5 .7]};
