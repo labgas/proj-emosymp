@@ -36,7 +36,7 @@ maskname = which('gray_matter_mask.img');
 
 % prep_4_apply_signatures_and_save options 
 % --------------------------------------------------------------------
-use_scaled_images = true; % @lukasvo76: changed the default here, since I want to use z-scored images - see above
+use_scaled_images = false; % @lukasvo76: changed the default here, since I want to use z-scored images - see above
 
 % z_batch_publish_everything, z_batch_publish_analyses options 
 % --------------------------------------------------------------------
