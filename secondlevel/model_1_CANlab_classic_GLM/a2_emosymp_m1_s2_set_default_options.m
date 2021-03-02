@@ -13,7 +13,7 @@ dozipimages = false;        % default true  Set to false to avoid load on data u
 % prep_3a_run_second_level_regression_and_save options 
 % --------------------------------------------------------------------
 dorobust = true;            % robust statistics [true, false] -- default true
-myscaling = 'scaled';          % 'raw' or 'scaled'; @lukasvo76: changed the default here, since I want to use z-scored images, and I will set up z-scoring using fmri_data.rescale in prep_2_load_image_data_and_save.m
+myscaling = 'raw';          % 'raw' or 'scaled'; @lukasvo76: changed the default here, since I want to use z-scored images, and I will set up z-scoring using fmri_data.rescale in prep_2_load_image_data_and_save.m
 design_matrix_type = 'group';   % 'group' or 'custom'
                             % Group: use DAT.BETWEENPERSON.group or DAT.BETWEENPERSON.contrasts{c}.group;
                             % Custom: use all columns of table object DAT.BETWEENPERSON.contrasts{c};
