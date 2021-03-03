@@ -13,10 +13,17 @@ dozipimages = false;        % default true  Set to false to avoid load on data u
 % prep_3a_run_second_level_regression_and_save options 
 % --------------------------------------------------------------------
 dorobust = true;            % robust statistics [true, false] -- default true
-myscaling = 'raw';          % 'raw' or 'scaled'; @lukasvo76: changed the default here, since I want to use z-scored images, and I will set up z-scoring using fmri_data.rescale in prep_2_load_image_data_and_save.m
+myscaling = 'raw';          % 'raw' or 'scaled'; @lukasvo76: change to 'scaled' if you want to use z-scored images, z-scoring is set up using fmri_data.rescale in prep_2_load_image_data_and_save.m
 design_matrix_type = 'group';   % 'group' or 'custom'
-                            % Group: use DAT.BETWEENPERSON.group or DAT.BETWEENPERSON.contrasts{c}.group;
-                            % Custom: use all columns of table object DAT.BETWEENPERSON.contrasts{c};
+                            % Group: use DAT.BETWEENPERSON.group or
+                            % DAT.BETWEENPERSON.contrasts{c}.group;
+                            % @lukasvo76: choose this option if you want to
+                            % compare groups without controlling for
+                            % covariates
+                            % Custom: use all columns of table object
+                            % DAT.BETWEENPERSON.contrasts{c}; @lukasvo76:
+                            % choose this option if you have covariates in
+                            % addition to a group factor
 
 % prep_3b_run_SVMs_on_contrasts_and_save options 
 % --------------------------------------------------------------------
@@ -36,7 +43,7 @@ maskname = which('gray_matter_mask.img');
 
 % prep_4_apply_signatures_and_save options 
 % --------------------------------------------------------------------
-use_scaled_images = false; % @lukasvo76: changed the default here, since I want to use z-scored images - see above
+use_scaled_images = false; % @lukasvo76: change to true if you want to use z-scored images - see above
 
 % z_batch_publish_everything, z_batch_publish_analyses options 
 % --------------------------------------------------------------------
