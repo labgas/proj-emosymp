@@ -186,8 +186,7 @@ DAT.BETWEENPERSON.contrasts{j}.NA_rating = DAT.BEHAVIOR.behavioral_data_table.(c
 
 end
 
-DAT.BETWEENPERSON.group = group; 
-% lukasvo76: seems redundant if you define contrasts{i}.group
+DAT.BETWEENPERSON.group = group; % @lukasvo76: ALWAYS define this group variable if you have different groups of subjects, even when you have already defined them in the conditions{i}.group or contrasts{j}.group fields above!
 DAT.BETWEENPERSON.groupnames = {'control' 'patient'};
 DAT.BETWEENPERSON.groupcolors = {[.7 .3 .5] [.3 .5 .7]};
 
