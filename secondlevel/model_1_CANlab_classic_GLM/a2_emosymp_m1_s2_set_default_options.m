@@ -30,7 +30,7 @@ design_matrix_type = 'group';   % 'group' or 'custom'
 dosubjectnorm = false;      % default false     normalize_each_subject_by_l2norm; can help with numerical scaling and inter-subject scaling diffs
 dozscoreimages = false;     % default false     Z-score each input image, removing image mean and forcing std to 1. Removes overall effects of image intensity and scale. Can be useful across studies but also removes information. Use judiciously.
 dosavesvmstats = true;      % default true      Save statistics and weight map objects for SVM contrasts
-dobootstrap = true;         % default false     Takes a lot of time
+dobootstrap = false;         % default false     Takes a lot of time
 boot_n = 1000;              % default number of bootstrap samples. Very slow. Recommend 5,000 for final published analysis
 parallelstr = 'parallel';   % parallel proc for boot. 'parallel' or 'noparallel'
 
