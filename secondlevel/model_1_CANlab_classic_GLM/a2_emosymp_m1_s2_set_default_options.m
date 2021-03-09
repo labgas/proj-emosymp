@@ -4,7 +4,7 @@
 % You can change these values on your local computer, but do not commit the
 % changed version to the repository.
 
-% prep_2_load_image_data_and_save options  (also prep_3_calc_univariate_contrast_maps_and_save)
+% prep_2_load_image_data_and_save options & prep_3_calc_univariate_contrast_maps_and_save
 % --------------------------------------------------------------------
 dofullplot = true;         % default true  Can set to false to save time
 omit_histograms = false;     % default false Histograms not useful for large samples 
@@ -13,7 +13,7 @@ dozipimages = false;        % default true  Set to false to avoid load on data u
 % prep_3a_run_second_level_regression_and_save options 
 % --------------------------------------------------------------------
 dorobust = true;            % robust statistics [true, false] -- default true
-myscaling = 'raw';          % 'raw' or 'scaled'; @lukasvo76: change to 'scaled' if you want to use z-scored images, z-scoring is set up using fmri_data.rescale in prep_2_load_image_data_and_save.m
+myscaling = 'raw';          % 'raw', 'scaled', or 'scaled_contrasts'; @lukasvo76: change to 'scaled' if you want to use z-scored condition images, change to 'scaled_contrasts' if you want to use l2norm scaled contrast images
 design_matrix_type = 'group';   % 'group' or 'custom'
                             % Group: use DAT.BETWEENPERSON.group or
                             % DAT.BETWEENPERSON.contrasts{c}.group;
@@ -25,6 +25,10 @@ design_matrix_type = 'group';   % 'group' or 'custom'
                             % choose this option if you have covariates in
                             % addition to a group factor
 
+% c_univariate_contrast_maps & c2a_second_level_regression options
+% --------------------------------------------------------------------
+maskname_glm = which('gray_matter_mask.img'); % @lukasvo76: maskdir now defined in a_set_up_paths_always_run_first script; if you do not want to mask, change to []; if you want to use a custom mask, put it in maskdir and change the name
+
 % prep_3b_run_SVMs_on_contrasts_and_save options 
 % --------------------------------------------------------------------
 dosubjectnorm = false;      % default false     normalize_each_subject_by_l2norm; can help with numerical scaling and inter-subject scaling diffs
@@ -34,12 +38,10 @@ dobootstrap = false;         % default false     Takes a lot of time
 boot_n = 1000;              % default number of bootstrap samples. Very slow. Recommend 5,000 for final published analysis
 parallelstr = 'parallel';   % parallel proc for boot. 'parallel' or 'noparallel'
 
-
 % prep_3c_run_SVMs_on_contrasts_masked options 
 % --------------------------------------------------------------------
 % see options in prep_3b above as well as the following:
-maskdir = fullfile(basedir, 'masks');
-maskname = which('gray_matter_mask.img');
+maskname_svm = which('gray_matter_mask.img'); % see above
 
 % prep_4_apply_signatures_and_save options 
 % --------------------------------------------------------------------

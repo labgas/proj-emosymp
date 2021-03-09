@@ -63,6 +63,7 @@ a2_emosymp_m1_s2_set_default_options % lukasvo76: referring to renamed study- an
 cd(basedir)
 
 datadir = fullfile(basedir, 'data');
+maskdir = fullfile(basedir, 'masks');
 resultsdir = fullfile(basedir, 'results');
 scriptsdir = 'C:\Users\lukas\Documents\GitHub\proj-emosymp\secondlevel\model_1_CANlab_classic_GLM'; % lukasvo76: contrary to CANlab structure, I want my second level scripts to live in my Github local working dir for this study
 figsavedir = fullfile(resultsdir, 'figures');
@@ -70,13 +71,15 @@ notesdir = fullfile(resultsdir, 'notes');
 htmlsavedir = fullfile(resultsdir, 'html');
 canlabhelpexamplesdir = 'C:\Users\lukas\Documents\GitHub\CANlab_help_examples_LaBGAS_fork\CANlab_help_examples'; % lukasvo76: we want the LaBGAS fork of CANlab_help_examples here!
 
-addpath(scriptsdir)
-addpath(genpath(canlabhelpexamplesdir))
-
+if ~exist(maskdir, 'dir'), mkdir(maskdir); end
 if ~exist(resultsdir, 'dir'), mkdir(resultsdir); end
 if ~exist(figsavedir, 'dir'), mkdir(figsavedir); end
 if ~exist(notesdir, 'dir'), mkdir(notesdir); end
 if ~exist(htmlsavedir, 'dir'), mkdir(htmlsavedir); end
+
+addpath(scriptsdir)
+addpath(maskdir)
+addpath(genpath(canlabhelpexamplesdir))
 
 % Display helper functions: Called by later scripts
 % --------------------------------------------------------
