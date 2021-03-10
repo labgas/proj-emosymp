@@ -13,7 +13,7 @@ dozipimages = false;        % default true  Set to false to avoid load on data u
 % prep_3a_run_second_level_regression_and_save options 
 % --------------------------------------------------------------------
 dorobust = true;            % robust statistics [true, false] -- default true
-myscaling = 'raw';          % 'raw', 'scaled', or 'scaled_contrasts'; @lukasvo76: change to 'scaled' if you want to use z-scored condition images, change to 'scaled_contrasts' if you want to use l2norm scaled contrast images
+myscaling_glm = 'raw';          % 'raw', 'scaled', or 'scaled_contrasts'; @lukasvo76: change to 'scaled' if you want to use z-scored condition images, change to 'scaled_contrasts' if you want to use l2norm scaled contrast images
 design_matrix_type = 'group';   % 'group' or 'custom'
                             % Group: use DAT.BETWEENPERSON.group or
                             % DAT.BETWEENPERSON.contrasts{c}.group;
@@ -34,14 +34,16 @@ maskname_glm = which('gray_matter_mask.img'); % @lukasvo76: maskdir now defined 
 dosubjectnorm = false;      % default false     normalize_each_subject_by_l2norm; can help with numerical scaling and inter-subject scaling diffs
 dozscoreimages = false;     % default false     Z-score each input image, removing image mean and forcing std to 1. Removes overall effects of image intensity and scale. Can be useful across studies but also removes information. Use judiciously.
 dosavesvmstats = true;      % default true      Save statistics and weight map objects for SVM contrasts
-dobootstrap = false;         % default false     Takes a lot of time
-boot_n = 1000;              % default number of bootstrap samples. Very slow. Recommend 5,000 for final published analysis
+dobootstrap = false;        % default false     Takes a lot of time
+boot_n = 1000;              % default number of bootstrap samples. Slow. Recommend 10,000 for final published analysis
 parallelstr = 'parallel';   % parallel proc for boot. 'parallel' or 'noparallel'
 
-% prep_3c_run_SVMs_on_contrasts_masked options 
+% prep_3c_run_SVMs_on_contrasts_masked options &
+% prep_3d_run_SVMs_betweenperson_contrasgs
 % --------------------------------------------------------------------
 % see options in prep_3b above as well as the following:
 maskname_svm = which('gray_matter_mask.img'); % see above
+myscaling_svm_between = 'raw'; % see above, only for prep_3d
 
 % prep_4_apply_signatures_and_save options 
 % --------------------------------------------------------------------
