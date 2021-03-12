@@ -107,12 +107,12 @@ behavioral_data_table.symptoms_pos_neu = zscore((behavioral_data_table.symptoms_
 
 % zscore raw ratings too
 % NOTE: order does not matter here as variables already exist in table
-behavioral_data_table.NA_neg = zscore(behavioral_data_table.NA_neg,0,'omitnan');
-behavioral_data_table.NA_neu = zscore(behavioral_data_table.NA_neu,0,'omitnan');
-behavioral_data_table.NA_pos = zscore(behavioral_data_table.NA_pos,0,'omitnan');
-behavioral_data_table.symptoms_neg = zscore(behavioral_data_table.symptoms_neg,0,'omitnan');
-behavioral_data_table.symptoms_neu = zscore(behavioral_data_table.symptoms_neu,0,'omitnan');
-behavioral_data_table.symptoms_pos = zscore(behavioral_data_table.symptoms_pos,0,'omitnan');
+% behavioral_data_table.NA_neg = zscore(behavioral_data_table.NA_neg,0,'omitnan');
+% behavioral_data_table.NA_neu = zscore(behavioral_data_table.NA_neu,0,'omitnan');
+% behavioral_data_table.NA_pos = zscore(behavioral_data_table.NA_pos,0,'omitnan');
+% behavioral_data_table.symptoms_neg = zscore(behavioral_data_table.symptoms_neg,0,'omitnan');
+% behavioral_data_table.symptoms_neu = zscore(behavioral_data_table.symptoms_neu,0,'omitnan');
+% behavioral_data_table.symptoms_pos = zscore(behavioral_data_table.symptoms_pos,0,'omitnan');
 
 % Add to DAT for record, and flexible use later
 DAT.BEHAVIOR.behavioral_data_table = behavioral_data_table;
