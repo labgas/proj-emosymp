@@ -38,12 +38,22 @@ dobootstrap = false;        % default false     Takes a lot of time
 boot_n = 1000;              % default number of bootstrap samples. Slow. Recommend 10,000 for final published analysis
 parallelstr = 'parallel';   % parallel proc for boot. 'parallel' or 'noparallel'
 
-% prep_3c_run_SVMs_on_contrasts_masked options &
-% prep_3d_run_SVMs_betweenperson_contrasgs
+% prep_3c_run_SVMs_on_contrasts_masked options 
 % --------------------------------------------------------------------
 % see options in prep_3b above as well as the following:
 maskname_svm = which('gray_matter_mask.img'); % see above
-myscaling_svm_between = 'raw'; % see above, only for prep_3d
+
+% prep_3d_run_SVMs_betweenperson_contrasts options
+% --------------------------------------------------------------------
+% see options in prep_3b & prep_3c above as well as the following:
+myscaling_svm_between = 'raw'; % see above
+
+% emosymp_m1_s5_predict_symptom_ratings_lasso_pcr options
+% --------------------------------------------------------------------
+% see options in prep_3b above as well as the following:
+maskname_pcr = which('gray_matter_mask.img'); % see above
+myscaling_pcr = 'raw'; % only 'raw', or 'scaled' in this case
+dosavepcrstats = true; % see above
 
 % prep_4_apply_signatures_and_save options 
 % --------------------------------------------------------------------
