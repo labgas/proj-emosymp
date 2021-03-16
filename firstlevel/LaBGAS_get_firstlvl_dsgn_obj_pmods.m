@@ -51,7 +51,7 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
     % INPUT
     % required fields
     DSGN.metadata = "emosymp study classic GLM first level analysis using CANlab tools"; % field for annotation with study info, or whatever you like
-    DSGN.modeldir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\firstlevel\model_1_CANlab_classic_glm'; % directory where you want to write first level results
+    DSGN.modeldir = 'C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\firstlevel\model_3_CANlab_classic_glm_pmods'; % directory where you want to write first level results
     DSGN.subjects = {}; % sets up empty cell array field for subjects in structural array DSGN
     fnames = dir('C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\derivatives\fmriprep\sub*'); % get subject names from root directory with subject data
     idx=[fnames.isdir]'; % duplicate names of subjects in fmriprep dir because of .html files with same subject names as folders
@@ -102,7 +102,7 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
     DSGN.notimemod = true; % default: false; if true, turn off time modulation of conditions, i.e. when you do not expect linear trends over time
 %     DSGN.singletrials = {{}}; % a cell array (1 cell per session) of cell arrays (1 cell per condition) of (corresponding to DSGN.conditions) of true/false values indicating whether to convert specified condition to set of single trial conditions
 %     DSGN.singletrialsall = false; % default: false; if true, set DSGN.singletrials to true for all conditions
-    DSGN.modelingfilesdir = 'model_1_CANlab_classic_glm'; % name of subfolder which will be created within directory containing functional files where .mat files containing fields of DSGN structure will be saved
+    DSGN.modelingfilesdir = 'model_3_CANlab_classic_glm_pmods'; % name of subfolder which will be created within directory containing functional files where .mat files containing fields of DSGN structure will be saved
 %     DSGN.allowemptycond = false; % default:false; if true, allow empty conditions
 %     DSGN.allowmissingcondfiles = false; % default:false; if true, throw warning instead of error when no file(s) are found corresponding to a MAT-file name/wildcard
     DSGN.multireg = 'noise_regs'; % specify name for matfile with noise parameters you want to save
