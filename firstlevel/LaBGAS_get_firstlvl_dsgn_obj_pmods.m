@@ -1,8 +1,9 @@
-%% LaBGAS_get_firstlvl_dsgn_obj
+%% LaBGAS_get_firstlvl_dsgn_obj_pmods
 %
 % This script contains a function that defines a number of fields of 
 % the CANlab style first level DSGN structure array
-% for Maaike's emosymp study on IAPS picture-induced bodily symptoms.
+% for Maaike's emosymp study on IAPS picture-induced bodily symptoms, 
+% including parametric modulators.
 % This function is used in LaBGAS_1_spm_fit_firstlvl_models.m to
 % run first level analysis using CANlab tools
 %
@@ -40,14 +41,14 @@
 % bogdan.petre@dartmouth.edu,
 % marta.ceko@colorado.edu
 %
-% date:   October, 2020
+% date:   March, 2021
 %
 %__________________________________________________________________________
-% @(#)% LaBGAS_get_firstlvl_dsgn_obj.m         v1.1        
-% last modified: 2021/02/05
+% @(#)% LaBGAS_get_firstlvl_dsgn_obj_pmods.m         v1.0        
+% last modified: 2021/03/16
 %
 %% function code
-function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
+function DSGN = LaBGAS_get_firstlvl_dsgn_obj_pmods()
     % INPUT
     % required fields
     DSGN.metadata = "emosymp study classic GLM first level analysis using CANlab tools"; % field for annotation with study info, or whatever you like
@@ -63,6 +64,11 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj()
                 DSGN.subjects = [DSGN.subjects, [this_f.folder, '\', this_f.name]]; % cell array of subject directories (absolute paths)
             end
     end
+    pheno_sub = readtable('C:\Users\lukas\Dropbox (Dartmouth College)\fMRI_emotion_Giao\BIDS\phenotype\Phenotype_subject.tsv','FileType','text','Delimiter','tab');
+    idx_subjincluded_sub = logical(pheno_sub.included);
+    pheno_sub = pheno_sub(idx_subjincluded_sub,:);
+    idx_norating_sub = ~isnan(pheno_sub.symptoms_neg) & ~isnan(pheno_sub.symptoms_neu) & ~isnan(pheno_sub.symptoms_pos);
+    DSGN.subjects = DSGN.subjects(idx_norating_sub'); % get rid of subjects who have missing pmods
     DSGN.funcnames = {'func\run-1\s6*.nii',...
         'func\run-2\s6*.nii',...
         'func\run-3\s6*.nii',...
