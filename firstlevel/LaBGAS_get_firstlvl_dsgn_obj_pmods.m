@@ -114,26 +114,38 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj_pmods()
     DSGN.multireg = 'noise_regs'; % specify name for matfile with noise parameters you want to save
     
     % CONTRASTS
+    % optional fields for flexible definition of contrasts - for more info
+    % help canlab_spm_contrast_job_luka
+    % https://github.com/canlab/CanlabCore/blob/master/CanlabCore/GLM_Batch_tools/canlab_glm_example_DSGN_setup.txt
+    DSGN.regmatching = 'regexp'; % regular expression mode to match keywords you provide in cell arrays below with beta regressor names stored in the SPM.Vbeta.descrip field of your first level SPM.mat file
+%     DSGN.defaultsuffix = '\*bf\(1\)$'; % adds this suffix to each keyword your provide by default
     % required fields
     % cell array (one cell per contrast) of contrast definitions
     c=0;
-    c=c+1;DSGN.contrasts{c} = {{'negative'}};
-    c=c+1;DSGN.contrasts{c} = {{'neutral'}};
-    c=c+1;DSGN.contrasts{c} = {{'positive'}};
-    c=c+1;DSGN.contrasts{c} = {{'negative'} {'neutral'}};
-    c=c+1;DSGN.contrasts{c} = {{'negative'} {'positive'}};
-    c=c+1;DSGN.contrasts{c} = {{'positive'} {'neutral'}};
-    % optional fields - not needed for standard contrasts
-%     DSGN.contrastnames{1} = 'negative'; 
-%     DSGN.contrastweights{1} = [1]; 
-%     DSGN.contrastnames{2} = 'neutral'; 
-%     DSGN.contrastweights{2} = [0 1]; 
-%     DSGN.contrastnames{3} = 'positive'; 
-%     DSGN.contrastweights{3} = [0 0 1];
-%     DSGN.contrastnames{4} = 'negative versus neutral'; 
-%     DSGN.contrastweights{4} = [1 -1];
-%     DSGN.contrastnames{5} = 'negative versus positive'; 
-%     DSGN.contrastweights{5} = [1 0 -1];
-%     DSGN.contrastnames{6} = 'positive versus neutral'; 
-%     DSGN.contrastweights{6} = [0 -1 1];
+    c=c+1;DSGN.contrasts{c} = {{'.*negative{1}\s[^x]'}}; % this will select any beta regressor starting with "negative", followed by exactly one white space, but not followed by x - which is only the unmodulated regressors for the negative condition!
+    c=c+1;DSGN.contrasts{c} = {{'.*neutral{1}\s[^x]'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*positive{1}\s[^x]'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*negative{1}\s[^x]'} {'.*neutral{1}\s[^x]'}}; % contrasts between unmodulated regressors
+    c=c+1;DSGN.contrasts{c} = {{'.*negative{1}\s[^x]'} {'.*positive{1}\s[^x]'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*positive{1}\s[^x]'} {'.*neutral{1}\s[^x]'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*symptoms_neg'}}; % this will select any beta regressor with "symptoms_neg" anywhere in the name - which is only the modulated regressors for the negative condition!
+    c=c+1;DSGN.contrasts{c} = {{'.*symptoms_neu'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*symptoms_pos'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*symptoms_neg'} {'.*symptoms_neu'}}; % contrasts between modulated regressors
+    c=c+1;DSGN.contrasts{c} = {{'.*symptoms_neg'} {'.*symptoms_pos'}};
+    c=c+1;DSGN.contrasts{c} = {{'.*symptoms_pos'} {'.*symptoms_neu'}};
+    % optional fields to define custom contrast names and weights
+    c=0;
+    c=c+1;DSGN.contrastnames{c} = 'negative unmodulated';  
+    c=c+1;DSGN.contrastnames{c} = 'neutral unmodulated';  
+    c=c+1;DSGN.contrastnames{c} = 'positive unmodulated';
+    c=c+1;DSGN.contrastnames{c} = 'negative unmodulated versus neutral unmodulated';  
+    c=c+1;DSGN.contrastnames{c} = 'negative unmodulated versus positive unmodulated';  
+    c=c+1;DSGN.contrastnames{c} = 'positive unmodulated versus neutral unmodulated';
+    c=c+1;DSGN.contrastnames{c} = 'negative modulated';  
+    c=c+1;DSGN.contrastnames{c} = 'neutral modulated';  
+    c=c+1;DSGN.contrastnames{c} = 'positive modulated';
+    c=c+1;DSGN.contrastnames{c} = 'negative modulated versus neutral modulated';  
+    c=c+1;DSGN.contrastnames{c} = 'negative modulated versus positive modulated';  
+    c=c+1;DSGN.contrastnames{c} = 'positive modulated versus neutral modulated';
 end
