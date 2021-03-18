@@ -87,6 +87,7 @@ for sub=1:size(subjs,1)
     % get subject-level data
     subj_name = subjs{sub};
     subj_pheno = pheno_trial(pheno_trial.subject_id==subj_name,:);
+    subj_pheno.state_symptoms = subj_pheno.state_symptoms - mean(subj_pheno.state_symptoms); % mean center your pmod at the subject level; comment out if you don't want to do that
     subj_runs = unique(subj_pheno.run)';
     
     % loop over runs
