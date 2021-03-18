@@ -37,6 +37,8 @@
 % 'classic'
 % classic SPM first level GLM design with one regressor per condition per
 % run
+% 'classic_pmods'
+% same as classic but including parametric modulators
 % 'single_trial'
 % single trial first level GLM design with one regressor per trial for
 % conditions specific in DSGN.singletrials in
@@ -60,15 +62,18 @@
 % addpath(genpath('C:\Users\lukas\Documents\MATLAB\spm12'));
 addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add our local path to the LaBGAS Github repo for this project
 
-analysis_method = 'single_trial';
+analysis_method = 'classic_pmods';
 
 %% call function to create DSGN structure array
-if strcmpi(analysis_method,'classic')==1
-    DSGN = LaBGAS_get_firstlvl_dsgn_obj();
-elseif strcmpi(analysis_method,'single_trial')==1
-    DSGN = LaBGAS_get_single_trial_dsgn_obj();
-else
-    error('invalid analysis_method option, correct in settings');
+switch analysis_method
+    case 'classic'
+        DSGN = LaBGAS_get_firstlvl_dsgn_obj();
+    case 'classic_pmods'
+        DSGN = LaBGAS_get_firstlvl_dsgn_obj_pmods();
+    case 'single_trial'
+        DSGN = LaBGAS_get_single_trial_dsgn_obj();
+    otherwise
+        error('invalid analysis_method option, correct in settings');
 end
 
 %% code to run analysis and diagnostics, and publish report
