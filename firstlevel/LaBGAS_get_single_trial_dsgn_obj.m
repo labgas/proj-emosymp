@@ -74,7 +74,7 @@ function DSGN = LaBGAS_get_single_trial_dsgn_obj()
         'func\run-5\s6*.nii',...
         'func\run-6\s6*.nii'}; % cell array (one cell per session) of paths to functional files, relative to absolute path specific in DSGN.subjects
     % optional fields
-    DSGN.concatenation = {}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly
+    DSGN.concatenation = {[1:6]}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly; we typically want to concatenate for single trial analysis
     DSGN.allowmissingfunc = true; % default; true will prevent erroring out when functional file is missing
     DSGN.customrunintercepts = {}; % default: none; will only work if DSGN.concatenation is specified; cell array of vectors specifying custom intercepts
     
@@ -115,7 +115,13 @@ function DSGN = LaBGAS_get_single_trial_dsgn_obj()
     c=c+1;DSGN.contrasts{c} = {{'negative'} {'neutral'}};
     c=c+1;DSGN.contrasts{c} = {{'negative'} {'positive'}};
     c=c+1;DSGN.contrasts{c} = {{'positive'} {'neutral'}};
-    % optional fields - not needed for standard contrasts
+    % optional fields - not needed for standard contrasts;
+    % the standard contrasts above are useful in that the are largely
+    % equivalent to classic glm analysis, lumping all trials for a
+    % condition together
+    % we add the single trial contrasts later with
+    % LaBGAS_add_single_trial_contrasts.m, since their contrast weights
+    % differ between subjects and hence cannot be specific here
 %     DSGN.contrastnames{1} = 'negative'; 
 %     DSGN.contrastweights{1} = [1]; 
 %     DSGN.contrastnames{2} = 'neutral'; 

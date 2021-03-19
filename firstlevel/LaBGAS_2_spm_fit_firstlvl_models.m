@@ -62,7 +62,7 @@
 % addpath(genpath('C:\Users\lukas\Documents\MATLAB\spm12'));
 addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add our local path to the LaBGAS Github repo for this project
 
-analysis_method = 'classic_pmods';
+analysis_method = 'single_trial';
 
 %% call function to create DSGN structure array
 switch analysis_method

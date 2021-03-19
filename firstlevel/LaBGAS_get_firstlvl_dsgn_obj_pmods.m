@@ -76,9 +76,9 @@ function DSGN = LaBGAS_get_firstlvl_dsgn_obj_pmods()
         'func\run-5\s6*.nii',...
         'func\run-6\s6*.nii'}; % cell array (one cell per session) of paths to functional files, relative to absolute path specific in DSGN.subjects
     % optional fields
-    DSGN.concatenation = {}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly
+    DSGN.concatenation = {[1:6]}; % default: none; cell array of arrays of runs to concatenate; see documentation for when to concatenate, and how it works exactly; in this case we concatenate for several of the reasons outlined in https://docs.google.com/document/d/1pfQlFnumT1ZjEB3qSHWA9lZ05Zd6pDqxwUy3jSNOhnY/edit#heading=h.i5hmh8orkhrs
     DSGN.allowmissingfunc = true; % default; true will prevent erroring out when functional file is missing
-    DSGN.customrunintercepts = {}; % default: none; will only work if DSGN.concatenation is specified; cell array of vectors specifying custom intercepts
+    DSGN.customrunintercepts = {}; % default: none; will only work if DSGN.concatenation is specified; cell array of vectors specifying custom intercepts; not needed in this case, concatenation automatically adds run intercept for each run!
     
     % PARAMETERS
     DSGN.tr = 3; % repetition time (TR) in seconds

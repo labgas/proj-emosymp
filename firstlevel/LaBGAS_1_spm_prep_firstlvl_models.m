@@ -97,7 +97,7 @@ addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add our loca
 
 useAROMA = false; % set to true if you want to use ICA-AROMA
 noise_method = 'LaBGAS';
-analysis_method = 'classic_pmods';
+analysis_method = 'single_trial';
 maskTRs = 0;
 
 %% call function to create DSGN structure array
