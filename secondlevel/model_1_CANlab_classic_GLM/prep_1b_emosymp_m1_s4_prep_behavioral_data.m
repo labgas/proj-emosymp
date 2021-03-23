@@ -175,14 +175,14 @@ covs = DAT.BEHAVIOR.behavioral_data_table.Properties.VariableNames(contains(DAT.
 for i = 1:length(DAT.conditions)
 
 DAT.BETWEENPERSON.conditions{i}.group = group;
-DAT.BETWEENPERSON.conditions{i}.NA_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{i}); % we can include the raw NA ratings for each condition here, but note that this will include these as covariate in all analyses on conditions!
+DAT.BETWEENPERSON.conditions{i}.symptom_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{3+i}); % we include the symptom ratings for each condition here, to be able to include these as covariate in analyses on conditions!
 
 end
 
 for j = 1:length(DAT.contrasts)
 
 DAT.BETWEENPERSON.contrasts{j}.group = group;
-DAT.BETWEENPERSON.contrasts{j}.NA_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{(length(DAT.conditions)*2)+j}); % we include the calculated contrasts between conditions on NA ratings here, they come after the NA and symptom ratings for conditions, to include those as covariate in our analysis on contrasts
+DAT.BETWEENPERSON.contrasts{j}.delta_symptom_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{(length(DAT.conditions)*2)+3+j}); % we include the calculated contrasts between conditions on NA ratings here, they come after the NA and symptom ratings for conditions, to include those as covariate in our analysis on contrasts
 
 end
 
