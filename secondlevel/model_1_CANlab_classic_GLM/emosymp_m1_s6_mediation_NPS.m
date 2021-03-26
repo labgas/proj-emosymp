@@ -34,14 +34,25 @@
 %% DEFINE PATHS AND VARIABLES TO BE USED IN ALL ANALYSES
 % -------------------------------------------------------------------------
 addpath(genpath('C:\Users\lukas\Documents\GitHub\MediationToolbox')); % add CANlab mediation toolbox to your path
+
+mediationdir = fullfile(resultsdir,'mediation_analysis'); % a_ script needs to be run first (always!) so resultsdir is known
+brain_mediationdir = fullfile(mediationdir,'brain_voxelwise');
+if ~isfolder(mediationdir)
+    mkdir(mediationdir);
+end
+if ~isfolder(brain_mediationdir)
+    mkdir(brain_mediationdir);
+end
+cd(mediationdir);
+
 idx = ~isnan(DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_neu); % index for subjects with missing behavioral data, which we want to exclude
 X = DAT.BETWEENPERSON.group(idx); % define predictor
 Ydat = [DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_neu(idx), DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_pos(idx), DAT.BEHAVIOR.behavioral_data_table.symptoms_pos_neu(idx)]; % define matrix of outcomes (subjects * contrasts)
+contrastnames = DAT.SIG_contrasts.raw.dotproduct.conditionnames; % get names of contrasts
 
 
 %% NPS
 % -------------------------------------------------------------------------
-contrastnames = DAT.SIG_contrasts.raw.dotproduct.conditionnames; % get names of contrasts
 
 for i = 1:size(contrastnames,2) % loop over contrasts
     
@@ -77,7 +88,6 @@ end
 
 %% SELECTED NPS SUBREGIONS
 % -------------------------------------------------------------------------
-contrastnames = DAT.SIG_contrasts.raw.dotproduct.conditionnames;
 
 for i = 1:size(contrastnames,2) 
     
@@ -112,4 +122,36 @@ for i = 1:size(contrastnames,2)
     toplevelstats_dACC{i} = toplevelstats;
     clear paths toplevelstats;
     
+    [paths, toplevelstats, ~] = mediation(X,Y{i},MrIns{i},'M',[MrdpIns{i},MrS2_Op{i},MdACC{i}],'names',{'group',contrastnames{i},'rIns response','rdpIns response','rS2_Op response','dACC response'},'boottop','plots');
+    drawnow;snapnow;
+    paths_mult_med{i} = paths;
+    toplevelstats_mult_med{i} = toplevelstats;
+    clear paths toplevelstats;
+    
 end
+
+
+%% VOXEL-BASED MEDIATION
+%--------------------------------------------------------------------------
+
+for i = 1:size(contrastnames,2)
+    
+    brain_mediationdir_contrast = fullfile(brain_mediationdir, contrastnames{i});
+    if ~isfolder(brain_mediationdir_contrast)
+        mkdir(brain_mediationdir_contrast);
+    end
+    cd(brain_mediationdir_contrast);
+    
+    Y{i} = Ydat(:,i);
+    
+    M_brain{i} = DAT.imgs{i}(idx);
+    
+    mediation_brain(X,Y{i},char(M_brain{i}),'mask',maskname_glm,'names',{'group',contrastnames{i},'brain'});
+    
+    cd(brain_mediationdir);
+    
+end
+
+% now run the following script from each results directory
+
+publish_mediation_report;
