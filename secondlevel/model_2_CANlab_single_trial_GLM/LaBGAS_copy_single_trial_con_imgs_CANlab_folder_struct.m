@@ -57,4 +57,5 @@ for i=1:size(subjs,1)
         for j=1:size(conimgs2copy,1)
             copyfile(fullfile(subjfirstleveldir,conimgs2copy(j,:)),fullfile(subjconimgsdir,conimgs2copy(j,:)));
         end
+    copyfile(fullfile(subjfirstleveldir,'diagnostics','vifs.mat'),fullfile(subjconimgsdir,'vifs.mat'));
 end
