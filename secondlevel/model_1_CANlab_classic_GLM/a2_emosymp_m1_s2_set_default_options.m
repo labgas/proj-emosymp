@@ -29,6 +29,12 @@ design_matrix_type = 'group';   % 'group' or 'custom'
 % --------------------------------------------------------------------
 maskname_glm = which('gray_matter_mask.img'); % @lukasvo76: maskdir now defined in a_set_up_paths_always_run_first script; if you do not want to mask, change to []; if you want to use a custom mask, put it in maskdir and change the name
 
+% c2e_second_level_robust_parcelwise_regression
+%---------------------------------------------------------------------
+% see options in prep_3a above as well as the following:
+csf_wm_covs = false; % default false, set to true if you want to add global wm & csf regressors
+remove_outliers = false; % default false, set to true if you want to remove outlier images/subjects based on mahalonobis distance
+
 % prep_3b_run_SVMs_on_contrasts_and_save options 
 % --------------------------------------------------------------------
 dosubjectnorm = false;      % default false     normalize_each_subject_by_l2norm; can help with numerical scaling and inter-subject scaling diffs
