@@ -2,7 +2,7 @@
 %
 % This simple script copies all single trial con images from
 % rootdir\firstlevel\model_x_yyy\sub-zz\ to
-% rootdir\secondlevel\model_x_yyy\con_images\sub-zz
+% rootdir\secondlevel\model_x_yyy\data\sub-zz
 % to prepare second level analysis with CANlab batch scripts
 %
 % Con images include
