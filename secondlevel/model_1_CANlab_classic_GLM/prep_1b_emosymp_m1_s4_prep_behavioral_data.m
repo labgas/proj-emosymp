@@ -182,7 +182,7 @@ end
 for j = 1:length(DAT.contrasts)
 
 DAT.BETWEENPERSON.contrasts{j}.group = group;
-DAT.BETWEENPERSON.contrasts{j}.delta_symptom_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{(length(DAT.conditions)*2)+3+j}); % we include the calculated contrasts between conditions on NA ratings here, they come after the NA and symptom ratings for conditions, to include those as covariate in our analysis on contrasts
+DAT.BETWEENPERSON.contrasts{j}.delta_symptom_rating = DAT.BEHAVIOR.behavioral_data_table.(covs{(length(DAT.conditions)*2)+3+j}); % we include the calculated contrasts between conditions on symptom ratings here, they come after the NA and symptom ratings for conditions, and the NA ratings for contrasts, to include those as covariate in our analysis on contrasts
 
 end
 
