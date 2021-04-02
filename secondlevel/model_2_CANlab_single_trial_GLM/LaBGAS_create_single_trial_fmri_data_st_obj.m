@@ -70,6 +70,7 @@ this_dat.metadata_table.vif_names = vif_names;
 %% add ratings to metadata_table field of fmri_data_st object
 
 behav_dat = readtable(fullfile(phenodir,'phenotype_trial.tsv'),'Filetype','text','Delimiter','tab');
+behav_dat.patient(behav_dat.patient == 0) = -1; % reference coding (-1 1) rather than effects coding (0 1) for reasons of consistency with other scripts
 idx_participant = logical(behav_dat.participant_included);
 idx_run = logical(behav_dat.run_included);
 idx_behav2 = ~isnan(behav_dat.valencepresentation_within_run);
@@ -83,3 +84,8 @@ this_dat.metadata_table = [this_dat.metadata_table behav_dat];
 
 this_dat.Y = this_dat.metadata_table.state_symptoms;
 this_dat.Y_descrip = 'somatic symptom rating';
+
+%% save fmri_data_st object
+
+savefilename = fullfile(resultsdir, 'single_trial_fmri_data_st_object.mat');
+save(savefilename, 'this_dat');
