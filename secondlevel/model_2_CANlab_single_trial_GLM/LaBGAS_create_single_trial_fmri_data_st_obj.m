@@ -11,6 +11,10 @@
 % LaBGAS_add_single_trial_contrasts.m
 % These are 2 con images per condition per run, for each single trial,
 % ordered per condition: negative, neutral, positive
+% 
+% Option to exclude positive trials is built in since in our present case, 
+% there is no variability (on average) in ratings between positive and neutral,
+% so we want to focus on negative v neutral
 %
 %__________________________________________________________________________
 %
@@ -19,6 +23,13 @@
 %__________________________________________________________________________
 % @(#)% LaBGAS_create_single_trial_fmri_data_st_obj     v1.0        
 % last modified: 2021/03/30
+
+
+%% set option to exclude positive trials
+% NOTE: this can be improved in the future to allow for more flexible
+% selection of conditions
+
+excl_pos = true;
 
 
 %% define directories
@@ -47,21 +58,30 @@ vif_names = [];
 for i = 1:size(subjs,1)
     subjdir = fullfile(conimgsdir,subjs(i,:));
     subjconimgs = ls([subjdir,'\con_*']);
-    subjconimgs = subjconimgs(4:end,:);
+    if excl_pos == true
+        subjconimgs = subjconimgs(4:(end-(size(subjconimgs(4:end,:),1)/3)),:); % we only want to pick the con images corresponding to single trials, and exclude positive trials
+    else
+        subjconimgs = subjconimgs(4:end,:); % we only want to pick the con images corresponding to single trials, but not exclude any conditions
+    end
     for j = 1:size(subjconimgs,1)
         subjconimgs_fp{j,1} = [deblank(subjdir),'\',subjconimgs(j,:)];
     end
     conimgs = [conimgs;subjconimgs_fp];
     clear subjconimgs subjconimgs_fp
     load(fullfile(deblank(subjdir),'vifs.mat'));
-    vif_values = [vif_values;vifs.allvifs(1:end-1)'];
-    vif_names = [vif_names;char(vifs.name(1:end-1)')];
+    if excl_pos == true
+        vif_values = [vif_values;vifs.allvifs(:,1:(end-1-size(vifs.allvifs(1:end-1),2)/3))'];
+        vif_names = [vif_names;char(vifs.name(:,1:(end-1-size(vifs.name(1:end-1),2)/3))')];
+    else
+        vif_values = [vif_values;vifs.allvifs(1:end-1)'];
+        vif_names = [vif_names;char(vifs.name(1:end-1)')];
+    end
     clear vifs
 end
 
 this_dat = fmri_data_st(conimgs);
 this_dat = remove_empty(this_dat);
-this_dat.source_notes = 'single trial con images for emosymp dataset';
+this_dat.source_notes = 'single trial con images for negative and neutral trials of emosymp dataset';
 this_dat.mask_descrip = 'default CANlab brainmask';
 this_dat.metadata_table.vif_values = vif_values;
 this_dat.metadata_table.vif_names = vif_names;
@@ -77,6 +97,9 @@ idx_behav2 = ~isnan(behav_dat.valencepresentation_within_run);
 idx = idx_participant & idx_run & idx_behav2;
 behav_dat = behav_dat(idx,:);
 behav_dat = sortrows(behav_dat,{'subject_id','trial_valence'});
+if excl_pos == true
+    behav_dat(contains(behav_dat.trial_valence,'pos'),:) = [];
+end
 this_dat.metadata_table = [this_dat.metadata_table behav_dat];
 
 
