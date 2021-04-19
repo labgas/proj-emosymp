@@ -1,7 +1,10 @@
 % This script runs single-level mediation models for proj-emosymp 
 % (Van den Houte, Bogaerts, et al, in prep), with the following variables
 % X: group (patients versus controls)
-% M: NPS response (including subregions) for each contrast
+% M: different options
+% 1. NPS response (including subregions) for each contrast
+% 2. voxel-wise brain mediator
+% 3. Principal Directions of Mediation (PDM) multivariate brain mediator
 % Y: somatic symptom ratings for each contrast
 %
 % It requires all study-specific and most core prep_ scripts for proj-emosymp 
@@ -14,17 +17,18 @@
 % can easily be set as options in a2_emosymp_m1_s2_set_default_options, 
 % or as part of this script at a later stage if desired
 %
-% This script is adapted from the following CANlab script:
+% This script is adapted from the following CANlab scripts:
 %
-% C:\Users\lukas\Dropbox
-% (Personal)\V_visceral_common\projects\anticipation_visceral\scripts\
-% s8_mediation_model_FAPS.m by @pkragel
-% see also mediation walkthrough on canlab.github.io
+% https://www.dropbox.com/s/uvfhdstfveve393/s8_mediation_model_FAPS.m?dl=0 
+% by @pkragel
+% https://github.com/canlab/MediationToolbox/blob/master/PDM_toolbox/Multivariate_Mediation_ExampleScript.m
+% by @tor and @martin
+% 
+% see also 
+% https://canlab.github.io/_pages/mediation_example_script_1/mediation_example_script_1.html
+% https://canlab.github.io/_pages/mediation_brain_sample_report/mediation_brain_results_report.html
 %
-% Contact @lukasvo76 if you do not have access to the original script
-% and you need it
-%
-% @lukasvo76 @Dartmouth, March 2021
+% @lukasvo76 @Dartmouth, March-April 2021
 % 
 % WORK IN PROGRESS
 % FIGURES, TITLES, AND STRUCTURE OF HTML OUTPUT CAN BE IMPROVED
@@ -35,13 +39,21 @@
 % -------------------------------------------------------------------------
 addpath(genpath('C:\Users\lukas\Documents\GitHub\MediationToolbox')); % add CANlab mediation toolbox to your path
 
+a_emosymp_m1_s1_set_up_paths_always_run_first
+
+load(fullfile(resultsdir,'image_names_and_setup.mat'));
+
 mediationdir = fullfile(resultsdir,'mediation_analysis'); % a_ script needs to be run first (always!) so resultsdir is known
 brain_mediationdir = fullfile(mediationdir,'brain_voxelwise');
+pdm_mediationdir = fullfile(mediationdir,'brain_pdm');
 if ~isfolder(mediationdir)
     mkdir(mediationdir);
 end
 if ~isfolder(brain_mediationdir)
     mkdir(brain_mediationdir);
+end
+if ~isfolder(pdm_mediationdir)
+    mkdir(pdm_mediationdir);
 end
 cd(mediationdir);
 
@@ -155,3 +167,30 @@ end
 % now run the following script from each results directory
 
 publish_mediation_report;
+
+
+%% MULTIVARIATE MEDIATION
+%--------------------------------------------------------------------------
+
+X_c = num2cell(X); % convert double to cell array
+
+for i = 1:size(contrastnames,2)
+    
+    pdm_mediationdir_contrast = fullfile(pdm_mediationdir, contrastnames{i});
+    if ~isfolder(pdm_mediationdir_contrast)
+        mkdir(pdm_mediationdir_contrast);
+    end
+    cd(pdm_mediationdir_contrast);
+    
+    Y{i} = Ydat(:,i);
+    Y_c{i} = num2cell(Y{i});
+    
+    M_brain{i} = DAT.imgs{i}(idx);
+    
+    pdm = multivariateMediation(X_c,Y_c{i},M_brain{i},'noPDMestimation','svd');
+    
+    pdm2 = multivariateMediation(X_c,Y_c{i},M_brain{i},'svd');
+    
+    cd(brain_mediationdir);
+    
+end
