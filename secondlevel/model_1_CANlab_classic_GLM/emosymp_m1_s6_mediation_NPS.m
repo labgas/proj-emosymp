@@ -171,6 +171,9 @@ publish_mediation_report;
 
 %% MULTIVARIATE MEDIATION
 %--------------------------------------------------------------------------
+% based on
+% https://github.com/canlab/MediationToolbox/blob/master/PDM_toolbox/Multivariate_Mediation_ExampleScript.m
+% and personal communication with Martin Lindquist and Xiaochun Han
 
 X_c = num2cell(X); % convert double to cell array
 
@@ -182,15 +185,40 @@ for i = 1:size(contrastnames,2)
     end
     cd(pdm_mediationdir_contrast);
     
-    Y{i} = Ydat(:,i);
-    Y_c{i} = num2cell(Y{i});
+    if ~isfile(strcat('PDMresults_',contrastnames{i},'.mat'))
+        
+        Y{i} = Ydat(:,i);
+        Y_c{i} = num2cell(Y{i});
+
+        M_brain{i} = DAT.imgs{i}(idx);
+        names = M_brain{i};
+
+        mask = which('gray_matter_mask.nii');
+
+        for j=1:size(X_c,1)
+            dat = fmri_data(names{j},mask); 
+            m{j} = dat.dat; 
+        end
+        
+        save(strcat('data_objects_',contrastnames{i},'.mat'),'dat','-v7.3');
+
+        pdm = multivariateMediation(X_c,Y_c{i},m,'B',20,'svd','plots');
+        pdm = multivariateMediation(pdm,'nPDM',2);
+        pdm = multivariateMediation(pdm,'noPDMestimation','bootPDM',1:2,'bootjPDM','Bsamp',5000,'save2file',strcat('PDMresults_',contrastnames{i},'.mat'));
     
-    M_brain{i} = DAT.imgs{i}(idx);
-    
-    pdm = multivariateMediation(X_c,Y_c{i},M_brain{i},'noPDMestimation','svd');
-    
-    pdm2 = multivariateMediation(X_c,Y_c{i},M_brain{i},'svd');
-    
-    cd(brain_mediationdir);
+    else
+        
+        load(strcat('PDMresults_',contrastnames{i},'.mat'));
+        pdm = out;
+        clear out;
+        load(strcat('data_objects_',contrastnames{i},'.mat'));
+        
+    end
+        
+    cd(pdm_mediationdir);
     
 end
+
+% now run the following script from each results directory
+
+publish_multivariate_mediation_report;
