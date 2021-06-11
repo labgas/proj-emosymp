@@ -99,3 +99,21 @@ model bc_fd_mean = patient / solution residual influence;
 repeated run / subject=subject type=cs r rcorr;
 lsmeans patient;
 run;
+
+proc mixed data=emosymp_hmp;
+where subj_included = 1 AND run_included = 1;
+class subject run patient;
+model bc_dvars_std = patient | run / solution residual influence;
+repeated run / subject=subject type=cs r rcorr;
+lsmeans patient;
+lsmeans run / diff=all;
+run;
+
+proc mixed data=emosymp_hmp;
+where subj_included = 1 AND run_included = 1;
+class subject run patient;
+model bc_fd_mean = patient | run / solution residual influence;
+repeated run / subject=subject type=cs r rcorr;
+lsmeans patient;
+lsmeans run / diff=all;
+run;
