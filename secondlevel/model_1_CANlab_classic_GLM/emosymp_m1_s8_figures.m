@@ -57,14 +57,14 @@ for o = 1:size(outcomes,2)
     f  = figure('Position', fig_position,'WindowState','maximized');
     h   = rm_raincloud(data_all{o}, cl, 0, 'rash');
     % title(['Figure 1' newline 'Repeated measures raincloud plot']);
-    xlabel({strcat(outcome_names{o},' rating'),''},'FontSize',16,'FontWeight','bold');
-    ylabel({'','condition'},'FontSize',16,'FontWeight','bold');
-    yticklabels({'\fontsize{12} positive','\fontsize{14} neutral','\fontsize{12} negative'});
-    legend([h.l(1,1) h.l(1,2)],{'FSS patients','healthy controls'},'Location','northeast','FontSize',16,'FontWeight','bold');
+    xlabel({strcat(outcome_names{o},' rating'),''},'FontSize',24,'FontWeight','bold');
+    ylabel({'','condition'},'FontSize',24,'FontWeight','bold');
+    yticklabels({'\fontsize{20} positive','\fontsize{20} neutral','\fontsize{20} negative'});
+    legend([h.l(1,1) h.l(1,2)],{'FSS patients','healthy controls'},'Location','northeast','FontSize',24,'FontWeight','bold');
 
     for i = 1:3
         for j = 1:2
-            h.s{i, j}.SizeData = 100;
+            h.s{i, j}.SizeData = 150;
         end
     end
     
@@ -75,4 +75,46 @@ for o = 1:size(outcomes,2)
     h_all{o} = h;
     
     clear f h;
+end
+
+for k = 1:max(unique(behdat.patient))
+    
+    NA_contrast{k} = [behdat.NA_neg_neu(behdat.patient==k),behdat.NA_neg_pos(behdat.patient==k)];
+    symptoms_contrast{k} = [behdat.symptoms_neg_neu(behdat.patient==k),behdat.symptoms_pos_neu(behdat.patient==k)];
+    
+end
+
+outcomes_contrast = {NA_contrast,symptoms_contrast};
+contrast_names = {'negative versus neutral','negative versus positive'};
+
+for o = 1:size(outcomes,2)
+    
+    for m = 1:size(NA_contrast,2)
+        
+        f2 = figure('Position', fig_position,'WindowState','maximized');
+        h1 = raincloud_plot(outcomes_contrast{o}{1}(:,m), 'box_on', 1, 'color', cb(4,:), 'alpha', 0.5,...
+             'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
+             'box_col_match', 0);
+        h2 = raincloud_plot(outcomes_contrast{o}{2}(:,m), 'box_on', 1, 'color', cb(1,:), 'alpha', 0.5,...
+             'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 0);
+        h1{2}.SizeData = 50;
+        h2{2}.SizeData = 50;
+        xlabel({'',[contrast_names{m},' ',outcome_names{o},' rating']},'FontSize',16,'FontWeight','bold');
+        legend([h1{1} h2{1}], {'FSS patients', 'healthy controls'},'Location','northeast','FontSize',16,'FontWeight','bold');
+    %     title(['Figure M7' newline 'A) Dodge Options Example 1']);
+        set(gca,'YLim', [-0.6 1.5]);
+        box off
+    
+    
+        % save
+        print(f2,fullfile(figspubdir,strcat('behav_contrasts_',outcome_names{o},'_',contrast_names{m},'.png')),'-dpng');
+
+        f2_all{o,m}= f2;
+        h1_all{o,m} = h1;
+        h2_all{o,m} = h2;
+
+        clear f2 h1 h2;
+        
+    end
+    
 end
