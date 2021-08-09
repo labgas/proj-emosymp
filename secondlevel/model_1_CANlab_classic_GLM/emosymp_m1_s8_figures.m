@@ -207,11 +207,13 @@ contrast_names = {'negative versus neutral','negative versus positive'};
 
 npsposregions = DAT.NPSsubregions.npspos_by_region_contrasts;
 npsposregions_names = DAT.NPSsubregions.posnames;
+npsposregions_names_full = {'vermis','R insula','R V1','R thalamus','L insula','R dorsal posterior insula','R S2 operculum','anterior midcingulate'};
 
 for t = 1:max(unique(behdat_full.patient))
     
-    for u = 1:size(nposposregions,2)
-       vermis{t} = [npsposregions{1}(behdat_full.patient==t,u),npsposregions{2}(behdat_full.patient==t,u)];
+    for u = 1:size(npsposregions{1},2)
+       regions{u,t} = [npsposregions{1}(behdat_full.patient==t,u),npsposregions{2}(behdat_full.patient==t,u)];
+    end
     
 end
 
@@ -378,5 +380,44 @@ end
     
 print(f5,fullfile(figspubdir,strcat(signature_names{2},'_',signature_names{3},'.png')),'-dpng','-r600');
 
+clear p q;
+
 
 % NPS subregions
+
+for c = 1:size(contrast_names,2)
+    
+    f{c}  = figure('Position', fig_position,'WindowState','maximized');
+    title(contrast_names{c},'FontSize',24,'FontWeight','bold');
+
+    for p = 1:size(regions,1)
+       subplot(3,3,p)
+            h13 = raincloud_plot(regions{p,1}(:,c), 'box_on', 1, 'color', cb(4,:), 'alpha', 0.5,...
+                         'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
+                         'box_col_match', 1, 'line_width', 1.5);
+            h14 = raincloud_plot(regions{p,2}(:,c), 'box_on', 1, 'color', cb(1,:), 'alpha', 0.5,...
+                 'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 1, 'line_width', 1.5);
+            h13{1}.EdgeColor = 'none';
+            h14{1}.EdgeColor = 'none';
+            h13{2}.SizeData = 20;
+            h14{2}.SizeData = 20;
+            ax5{p} = gca;
+            ax5{p}.FontSize = 12;
+            ax5{p}.FontName = 'Cambria';
+            ax5{p}.XAxis.LineWidth = 1;
+            ax5{p}.YAxis.LineWidth = 1;
+            ax5{p}.YAxisLocation = 'origin';
+            ax5{p}.YTick = [];
+            ax5{p}.LineWidth = 0.25;
+            xlabel({[npsposregions_names_full{p},' response']},'FontSize',14,'FontWeight','bold');
+            legend([h13{1} h14{1}], {'FSS', 'controls'},'Location','best','FontSize',10,'FontWeight','bold','Box','off');
+    %         title({(npsposregions_names{p}),''},'FontSize',20,'FontWeight','bold');
+            ylim([(h14{3}.Position(2)+0.10.*h14{3}.Position(2)) (max([h13{1}.YData h14{1}.YData])+0.05.*max([h13{1}.YData h14{1}.YData]))]);
+            box off
+    end
+    
+    sgtitle({contrast_names{c},''},'FontSize',20,'FontWeight','bold','FontName','Cambria');
+    
+    print(f{c},fullfile(figspubdir,strcat('npssubregions_',contrast_names{c},'.png')),'-dpng','-r600');
+    
+end
