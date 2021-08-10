@@ -78,7 +78,6 @@ for o = 1:size(outcomes,2)
     ax{o}.FontName = 'Cambria';
     ax{o}.XAxis.LineWidth = 1;
     ax{o}.YAxis.LineWidth = 1;
-    % title(['Figure 1' newline 'Repeated measures raincloud plot']);
     xlabel({strcat(outcome_names{o},' rating'),''},'FontSize',24,'FontWeight','bold');
     ylabel({'','condition'},'FontSize',24,'FontWeight','bold');
     yticklabels({'\fontsize{20} \bf positive','\fontsize{20} \bf neutral','\fontsize{20} \bf negative'});
@@ -162,8 +161,9 @@ for o = 1:size(outcomes,2)
         ax3{o,m} = gca;
         ax3{o,m}.FontSize = 14;
         ax3{o,m}.FontName = 'Cambria';
-        ax3{o,m}.XAxis.LineWidth = 1;
-        ax3{o,m}.YAxis.LineWidth = 1;
+        ax3{o,m}.YAxisLocation = 'origin';
+        ax3{o,m}.YTick = [];
+        ax3{o,m}.LineWidth = 0.25;
         xlabel({'',[outcome_names{o},' rating']},'FontSize',24,'FontWeight','bold');
         legend([h1{1} h2{1}], {'FSS patients', 'healthy controls'},'Location','best','FontSize',24,'FontWeight','bold','Box','off');
         title(contrast_names{m},'FontSize',28,'FontWeight','bold');
@@ -235,8 +235,9 @@ for s = 1:size(signatures,2)
         ax4{s,p} = gca;
         ax4{s,p}.FontSize = 14;
         ax4{s,p}.FontName = 'Cambria';
-        ax4{s,p}.XAxis.LineWidth = 1;
-        ax4{s,p}.YAxis.LineWidth = 1;
+        ax4{s,p}.YAxisLocation = 'origin';
+        ax4{s,p}.YTick = [];
+        ax4{s,p}.LineWidth = 0.25;
         xlabel({'',[signature_names{s},' response']},'FontSize',24,'FontWeight','bold');
         legend([h3{1} h4{1}], {'FSS patients', 'healthy controls'},'Location','best','FontSize',24,'FontWeight','bold','Box','off');
         title(contrast_names{p},'FontSize',28,'FontWeight','bold');
@@ -280,8 +281,6 @@ for p = 1:size(NPS,2)
         ax4{p} = gca;
         ax4{p}.FontSize = 12;
         ax4{p}.FontName = 'Cambria';
-        ax4{p}.XAxis.LineWidth = 1;
-        ax4{p}.YAxis.LineWidth = 1;
         ax4{p}.YAxisLocation = 'origin';
         ax4{p}.YTick = [];
         ax4{p}.LineWidth = 0.25;
@@ -306,8 +305,6 @@ for q = 3:(size(NPS,2)+2)
         ax4{q} = gca;
         ax4{q}.FontSize = 12;
         ax4{q}.FontName = 'Cambria';
-        ax4{q}.XAxis.LineWidth = 1;
-        ax4{q}.YAxis.LineWidth = 1;
         ax4{q}.YAxisLocation = 'origin';
         ax4{q}.YTick = [];
         ax4{q}.LineWidth = 0.25;
@@ -340,8 +337,6 @@ for p = 1:size(NPS,2)
         ax4{p} = gca;
         ax4{p}.FontSize = 12;
         ax4{p}.FontName = 'Cambria';
-        ax4{p}.XAxis.LineWidth = 1;
-        ax4{p}.YAxis.LineWidth = 1;
         ax4{p}.YAxisLocation = 'origin';
         ax4{p}.YTick = [];
         ax4{p}.LineWidth = 0.25;
@@ -366,8 +361,6 @@ for q = 3:(size(NPS,2)+2)
         ax4{q} = gca;
         ax4{q}.FontSize = 12;
         ax4{q}.FontName = 'Cambria';
-        ax4{q}.XAxis.LineWidth = 1;
-        ax4{q}.YAxis.LineWidth = 1;
         ax4{q}.YAxisLocation = 'origin';
         ax4{q}.YTick = [];
         ax4{q}.LineWidth = 0.25;
@@ -404,8 +397,6 @@ for c = 1:size(contrast_names,2)
             ax5{p} = gca;
             ax5{p}.FontSize = 12;
             ax5{p}.FontName = 'Cambria';
-            ax5{p}.XAxis.LineWidth = 1;
-            ax5{p}.YAxis.LineWidth = 1;
             ax5{p}.YAxisLocation = 'origin';
             ax5{p}.YTick = [];
             ax5{p}.LineWidth = 0.25;
