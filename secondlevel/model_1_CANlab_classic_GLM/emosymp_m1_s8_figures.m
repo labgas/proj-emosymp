@@ -380,7 +380,7 @@ clear p q;
 
 for c = 1:size(contrast_names,2)
     
-    f{c}  = figure('Position', fig_position,'WindowState','maximized');
+    f6{c}  = figure('Position', fig_position,'WindowState','maximized');
     title(contrast_names{c},'FontSize',24,'FontWeight','bold');
 
     for p = 1:size(regions,1)
@@ -409,6 +409,79 @@ for c = 1:size(contrast_names,2)
     
     sgtitle({contrast_names{c},''},'FontSize',20,'FontWeight','bold','FontName','Cambria');
     
-    print(f{c},fullfile(figspubdir,strcat('npssubregions_',contrast_names{c},'.png')),'-dpng','-r600');
+    print(f6{c},fullfile(figspubdir,strcat('npssubregions_',contrast_names{c},'.png')),'-dpng','-r600');
     
 end
+
+
+%% ROBFIT PARCELWISE BRAIN FIGURES
+%--------------------------------------------------------------------------
+
+% LOAD DATA
+
+load(fullfile(resultsdir,'robfit_parcel_stats_and_maps_no_scaling.mat'));
+t_obj_neg_neu_group = get_wh_image(robfit_parcel_stats_results{1,1}.t_obj,1); % loads statistic_image object for group effect on first contrast
+region_13 = robfit_parcel_stats_results{1,1}.region_objects{1,1}(1,13); % loads region object for a single region for same effect on same contrast, to be used with cluster_surf below
+
+% NOTE: looping over elements of robfit_parcel_stats_results does not
+% work for some weird reason, including using get_wh_image to get the first
+% row of the dat
+
+% EXAMPLE CODE FOR DIFFERENT CANLAB PLOTTING FUNCTIONS
+ 
+% canlab_results_fmridisplay and montage
+
+% see also help for other fmridisplay methods, particularly addblobs and
+% montage
+
+han_montage = canlab_results_fmridisplay(t_obj_neg_neu_group,'outline','linewidth',0.5,'montagetype','full hcp');
+% NOTE : han_montage is an fmridisplay object
+% legend(han_montage); 
+% legend function does not seem to work properly - issue
+% posted on canlabcode
+f7 = gcf;
+f7.WindowState = 'maximized';
+
+% render_on_surface
+
+surface_handle_1 = addbrain('coronal_slabs_5'); % help addbrain for all options
+render_on_surface(t_obj_neg_neu_group,surface_handle_1,'colormap','hot');
+
+surface_handle_2 = addbrain('hires'); % help addbrain for all options
+render_on_surface(t_obj_neg_neu_group,surface_handle_2,'colormap','hot');
+
+surface_handle_3 = addbrain('right_insula_slab'); % help addbrain for all options
+render_on_surface(t_obj_neg_neu_group,surface_handle_3,'colormap','hot');
+f8 = gcf;
+f8.WindowState = 'maximized';
+
+surface_handle_4 = addbrain('right_cutaway'); % help addbrain for all options
+render_on_surface(t_obj_neg_neu_group,surface_handle_4,'colormap','hot');
+
+% surface 
+% can also be used for more flexibility in defining surfaces, cutaways, etc, 
+% in combination with isosurf
+% NOTE: see region.surface and image_vector.isosurface as well as
+% canlab_canonical_brain_surface_cutaways for help
+
+anat = fmri_data(which('keuken_2014_enhanced_for_underlay.img'), 'noverbose');
+p = isosurface(anat, 'thresh', 140, 'nosmooth', 'ylim', [-Inf -30]);
+p2 = isosurface(anat, 'thresh', 140, 'nosmooth', 'xlim', [-Inf 0], 'YLim', [-30 Inf]);
+alpha 1 ; lightRestoreSingle; view(135, 30); colormap gray;
+p3 = addbrain('limbic hires');
+set(p3, 'FaceAlpha', .6, 'FaceColor', [.5 .5 .5]);
+delete(p3(3)); p3(3) = [];
+lightRestoreSingle;
+surface_handles = [p p2 p3];
+
+[surface_handles_1,pcl1,pcl2] = surface(t_obj_neg_neu_group,surface_handles);
+
+% cluster_surf 
+
+% does not seem to work for statistic_image objects, but check
+% it out for atlas or region objects!
+% NOTE: you can input any surface from the Github repo
+% CanlabCore\canlab_canonical_brains\Canonical_brains_surfaces
+
+% we use a region object for a single region here as example
+cluster_surf(region_13, 2, 'colors', {[1 1 0]}, 'surf_freesurf_inflated_Left.mat'); view(1,360);
