@@ -229,6 +229,7 @@ for i = 1:size(contrastnames,2)
         % "source reconstruction is thus no more than a covariance map
         % which shows how much each voxel covaries with model predictions
         % across images" - Bogdan Petre
+        % ref Haufe et al NeuroImage 2014
         
     for n = 1:size(pdm.Wfull,2)
 
