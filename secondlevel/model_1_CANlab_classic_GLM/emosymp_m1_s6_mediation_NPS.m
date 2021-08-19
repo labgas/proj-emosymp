@@ -38,6 +38,7 @@
 %% DEFINE PATHS AND VARIABLES TO BE USED IN ALL ANALYSES
 % -------------------------------------------------------------------------
 addpath(genpath('C:\Users\lukas\Documents\GitHub\MediationToolbox')); % add CANlab mediation toolbox to your path
+addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add proj-emosymp scripts to your path
 
 a_emosymp_m1_s1_set_up_paths_always_run_first
 
@@ -58,8 +59,9 @@ end
 cd(mediationdir);
 
 idx = ~isnan(DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_neu); % index for subjects with missing behavioral data, which we want to exclude
-X = DAT.BETWEENPERSON.group(idx); % define predictor
-Ydat = [DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_neu(idx), DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_pos(idx), DAT.BEHAVIOR.behavioral_data_table.symptoms_pos_neu(idx)]; % define matrix of outcomes (subjects * contrasts)
+X = DAT.BETWEENPERSON.group; % define predictor
+Ydat = [DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_neu, DAT.BEHAVIOR.behavioral_data_table.symptoms_neg_pos, DAT.BEHAVIOR.behavioral_data_table.symptoms_pos_neu]; % define matrix of outcomes (subjects * contrasts)
+Ynames = {'somatic_symptoms'};
 contrastnames = DAT.SIG_contrasts.raw.dotproduct.conditionnames; % get names of contrasts
 
 
@@ -72,9 +74,9 @@ for i = 1:size(contrastnames,2) % loop over contrasts
     Y{i} = Ydat(:,i);
     
     % define mediators
-    M{i} = table2array(DAT.SIG_contrasts.raw.dotproduct.NPS(idx,i));
-    Mpos{i} = table2array(DAT.SIG_contrasts.raw.dotproduct.NPSpos(idx,i));
-    Mneg{i} = table2array(DAT.SIG_contrasts.raw.dotproduct.NPSneg(idx,i));
+    M{i} = table2array(DAT.SIG_contrasts.raw.dotproduct.NPS(:,i));
+    Mpos{i} = table2array(DAT.SIG_contrasts.raw.dotproduct.NPSpos(:,i));
+    Mneg{i} = table2array(DAT.SIG_contrasts.raw.dotproduct.NPSneg(:,i));
     
     % run mediation models for each of the mediators
     [paths, toplevelstats, ~] = mediation(X,Y{i},M{i},'names',{'group',contrastnames{i},'NPS response'},'boottop','plots');
@@ -105,10 +107,10 @@ for i = 1:size(contrastnames,2)
     
     Y{i} = Ydat(:,i);
     
-    MrIns{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(idx,2);
-    MrdpIns{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(idx,6);
-    MrS2_Op{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(idx,7);
-    MdACC{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(idx,8);
+    MrIns{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(:,2);
+    MrdpIns{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(:,6);
+    MrS2_Op{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(:,7);
+    MdACC{i} = DAT.NPSsubregions.npspos_by_region_contrasts{i}(:,8);
     
     [paths, toplevelstats, ~] = mediation(X,Y{i},MrIns{i},'names',{'group',contrastnames{i},'rIns response'},'boottop','plots');
     drawnow;snapnow;
@@ -156,7 +158,7 @@ for i = 1:size(contrastnames,2)
     
     Y{i} = Ydat(:,i);
     
-    M_brain{i} = DAT.imgs{i}(idx);
+    M_brain{i} = DAT.imgs{i}(:);
     
     mediation_brain(X,Y{i},char(M_brain{i}),'mask',maskname_glm,'names',{'group',contrastnames{i},'brain'});
     
@@ -164,7 +166,7 @@ for i = 1:size(contrastnames,2)
     
 end
 
-% now run the following script from each results directory
+%% now run the following script from each results directory
 
 publish_mediation_report;
 
@@ -175,7 +177,7 @@ publish_mediation_report;
 % https://github.com/canlab/MediationToolbox/blob/master/PDM_toolbox/Multivariate_Mediation_ExampleScript.m
 % and personal communication with Martin Lindquist and Xiaochun Han
 
-X_c = num2cell(X); % convert double to cell array
+X_c = num2cell(X(idx)); % convert double to cell array
 
 for i = 1:size(contrastnames,2)
     
@@ -185,9 +187,15 @@ for i = 1:size(contrastnames,2)
     end
     cd(pdm_mediationdir_contrast);
     
-    if ~isfile(strcat('PDMresults_',contrastnames{i},'.mat'))
+    pdm_mediationdir_contrast_behav = fullfile(pdm_mediationdir_contrast, Ynames{1});
+            if ~isfolder(pdm_mediationdir_contrast_behav)
+                mkdir(pdm_mediationdir_contrast_behav);
+            end
+    cd(pdm_mediationdir_contrast_behav);
+    
+    if ~isfile(strcat('PDMresults_',contrastnames{i},'_',Ynames{1},'.mat')) || ~isfile(strcat('data_objects_',contrastnames{i},'_',Ynames{1},'.mat'))
         
-        Y{i} = Ydat(:,i);
+        Y{i} = Ydat(idx,i);
         Y_c{i} = num2cell(Y{i});
 
         M_brain{i} = DAT.imgs{i}(idx);
@@ -195,30 +203,56 @@ for i = 1:size(contrastnames,2)
 
         mask = which('gray_matter_mask.nii');
 
-        for j=1:size(X_c,1)
-            dat = fmri_data(names{j},mask); 
-            m{j} = dat.dat; 
+        for k=1:size(X_c,1)
+            dat = fmri_data(names{k},mask); 
+            m{k} = dat.dat; 
         end
         
-        save(strcat('data_objects_',contrastnames{i},'.mat'),'dat','-v7.3');
+        save(strcat('data_objects_',contrastnames{i},'_',Ynames{1},'.mat'),'dat','-v7.3');
 
         pdm = multivariateMediation(X_c,Y_c{i},m,'B',20,'svd','plots');
+        pdmfull = pdm;
         pdm = multivariateMediation(pdm,'nPDM',2);
-        pdm = multivariateMediation(pdm,'noPDMestimation','bootPDM',1:2,'bootjPDM','Bsamp',5000,'save2file',strcat('PDMresults_',contrastnames{i},'.mat'));
+        pdm = multivariateMediation(pdm,'noPDMestimation','bootPDM',1:2,'bootjPDM','Bsamp',5000,'save2file',strcat('PDMresults_',contrastnames{i},'_',Ynames{1},'.mat'));
+        save(strcat('PDMresults_',contrastnames{i},'_',Ynames{1},'.mat'),'pdmfull','-append');
     
     else
         
-        load(strcat('PDMresults_',contrastnames{i},'.mat'));
+        load(strcat('PDMresults_',contrastnames{i},'_',Ynames{1},'.mat'));
         pdm = out;
         clear out;
-        load(strcat('data_objects_',contrastnames{i},'.mat'));
+        load(strcat('data_objects_',contrastnames{i},'_',Ynames{1},'.mat'));
         
-    end
+    end % if loop
+    
+    % source reconstruction
+        % "source reconstruction is thus no more than a covariance map
+        % which shows how much each voxel covaries with model predictions
+        % across images" - Bogdan Petre
+        
+    for n = 1:size(pdm.Wfull,2)
+
+        X_source{i} = fmri_data(DAT.imgs{i}(idx),which('gray_matter_mask.nii'));
+        Xz_source{i} = rescale(X_source{i},'centervoxels');
+        M_source{i,n} = pdm.Wfull{1,n};
+        P_source{i,n} = M_source{i,n}'*Xz_source{i}.dat;
+        source{i,n} = (P_source{i,n}*Xz_source{i}.dat');
+        source{i,n} = source{i,n}'./(size(P_source{i,n},2)-1);
+        source_obj{i,n} = dat;
+        source_obj{i,n}.dat = source{i,n};
+        source_obj{i,n}.image_names = 'source reconstruction';
+        source_obj{i,n}.fullpath = '';
+        source_obj{i,n}.history = {['source reconstructed from con images and pdm_',num2str(n)]};
+        source_obj_j{n} = source_obj{i,n};
+
+    end % source recon loop
+
+    save(strcat('PDM_source_recon_',contrastnames{i},'_',Ynames{1},'.mat'),'source_obj_j');
         
     cd(pdm_mediationdir);
     
-end
+end % for loop contrasts
 
-% now run the following script from each results directory
+%% now run the following script from each results directory
 
 publish_multivariate_mediation_report;
