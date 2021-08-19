@@ -1,5 +1,8 @@
-%% DEFINE PATHS AND VARIABLES TO BE USED IN ALL ANALYSES
+%% DEFINE PATHS AND LOAD VARIABLES
 % -------------------------------------------------------------------------
+
+% SET PATHS AND DEFINE DIRS
+
 addpath(genpath('C:\Users\lukas\Documents\GitHub\proj-emosymp')); % add proj-emosymp Github repo to your path
 addpath(genpath('C:\Users\lukas\Documents\GitHub\RainCloudPlots')); % add RainCloudPlots Github repo to your path
 addpath(genpath('C:\Users\lukas\Documents\GitHub\Robust_Statistical_Toolbox')); % add Robust Statistical Toolbox Github repo to your path
@@ -12,26 +15,12 @@ if ~isfolder(figspubdir)
     mkdir(figspubdir);
 end
 
+
+% LOAD DATA AND DEFINE VARIABLES
+
+% Behavioral
+
 load(fullfile(resultsdir,'image_names_and_setup.mat'));
-
-try
-    % get nice colours from colorbrewer
-    % (https://uk.mathworks.com/matlabcentral/fileexchange/34087-cbrewer---colorbrewer-schemes-for-matlab)
-    [cb] = cbrewer('qual', 'Set3', 12, 'pchip');
-catch
-    % if you don't have colorbrewer, accept these far more boring colours
-    cb = [0.5 0.8 0.9; 1 1 0.7; 0.7 0.8 0.9; 0.8 0.5 0.4; 0.5 0.7 0.8; 1 0.8 0.5; 0.7 1 0.4; 1 0.7 1; 0.6 0.6 0.6; 0.7 0.5 0.7; 0.8 0.9 0.8; 1 1 0.4];
-end
-
-cl(1, :) = cb(4, :);
-cl(2, :) = cb(1, :);
-
-fig_position = [200 200 600 400]; % coordinates for figures
-
-
-%% BEHAVIORAL DATA
-%--------------------------------------------------------------------------
-% LOAD DATA
 
 % conditions
 idx = ~isnan(DAT.BEHAVIOR.behavioral_data_table.NA_neg);
@@ -63,13 +52,82 @@ for k = 1:max(unique(behdat.patient))
     symptoms_contrast{k} = [behdat.symptoms_neg_neu(behdat.patient==k),behdat.symptoms_pos_neu(behdat.patient==k)];
     
 end
-
 outcomes_contrast = {NA_contrast,symptoms_contrast};
 contrast_names = {'negative versus neutral','negative versus positive'};
 
+% Signature responses
+
+sigdat = DAT.SIG_contrasts.raw.dotproduct;
+behdat_full = DAT.BEHAVIOR.behavioral_data_table;
+behdat_full.patient(behdat_full.patient == -1) = 2;
+
+for n = 1:max(unique(behdat_full.patient))
+    
+    NPS{n} = [sigdat.NPS.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPS.Negative_v_Positive(behdat_full.patient==n)];
+    NPSpos{n} = [sigdat.NPSpos.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPSpos.Negative_v_Positive(behdat_full.patient==n)];
+    NPSneg{n} = [sigdat.NPSneg.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPSneg.Negative_v_Positive(behdat_full.patient==n)];
+    PINES{n} = [sigdat.PINES.Negative_v_Neutral(behdat_full.patient==n),sigdat.PINES.Negative_v_Positive(behdat_full.patient==n)];
+    
+end
+
+signatures = {NPS, NPSpos, NPSneg, PINES};
+signature_names = {'NPS', 'NPS positive', 'NPS negative', 'PINES'};
+contrast_names = {'negative versus neutral','negative versus positive'};
+
+npsposregions = DAT.NPSsubregions.npspos_by_region_contrasts;
+npsposregions_names = DAT.NPSsubregions.posnames;
+npsposregions_names_full = {'vermis','R insula','R V1','R thalamus','L insula','R dorsal posterior insula','R S2 operculum','anterior midcingulate'};
+
+for t = 1:max(unique(behdat_full.patient))
+    
+    for u = 1:size(npsposregions{1},2)
+       regions{u,t} = [npsposregions{1}(behdat_full.patient==t,u),npsposregions{2}(behdat_full.patient==t,u)];
+    end
+    
+end
+
+% Robust parcelwise analysis
+
+load(fullfile(resultsdir,'robfit_parcel_stats_and_maps_no_scaling.mat'));
+t_obj_neg_neu_group = get_wh_image(robfit_parcel_stats_results{1,1}.t_obj,1); % loads statistic_image object for group effect on first contrast
+region_13 = robfit_parcel_stats_results{1,1}.region_objects{1,1}(1,13); % loads region object for a single region for same effect on same contrast, to be used with cluster_surf below as an example
+
+% PDM analysis
+
+pdm_dir = fullfile(resultsdir,'mediation_analysis','brain_pdm');
+pdm_negneudir = fullfile(pdm_dir,'Negative_v_Neutral','somatic_symptoms');
+pdm_regiondir = fullfile(pdm_negneudir, 'region_objects_and_tables');
+
+load(fullfile(pdm_regiondir,'region_objects_and_tables.mat'));
+load(fullfile(pdm_negneudir,'PDM_source_recon_Negative_v_Neutral_somatic_symptoms.mat'));
+
+
+% DEFINE COLORS
+% to be used in raincloudplots using the great cbrewer
+% function - cbrewer() for overview of color schemes, and help cbrewer for
+% info on function
+try
+    % get nice colours from colorbrewer
+    % (https://uk.mathworks.com/matlabcentral/fileexchange/34087-cbrewer---colorbrewer-schemes-for-matlab)
+    [cb] = cbrewer('qual', 'Set1', 12, 'pchip');
+catch
+    % if you don't have colorbrewer, accept these far more boring colours
+    cb = [0.5 0.8 0.9; 1 1 0.7; 0.7 0.8 0.9; 0.8 0.5 0.4; 0.5 0.7 0.8; 1 0.8 0.5; 0.7 1 0.4; 1 0.7 1; 0.6 0.6 0.6; 0.7 0.5 0.7; 0.8 0.9 0.8; 1 1 0.4];
+end
+
+cl(1, :) = cb(3, :);
+cl(2, :) = cb(1, :);
+
+fig_position = [200 200 600 400]; % coordinates for figures
+
+
+%% BEHAVIORAL DATA
+%--------------------------------------------------------------------------
 
 % CONDITIONS - RM RAINCLOUD PLOT
+
 % individual figures
+
 for o = 1:size(outcomes,2)
     f  = figure('Position', fig_position,'WindowState','maximized');
     h   = rm_raincloud(data_all{o}, cl, 0, 'rash');
@@ -98,6 +156,7 @@ for o = 1:size(outcomes,2)
 end
 
 % integrated two-panel figure for publication
+
 fa  = figure('WindowState','maximized');
 subplot(1,2,1)
 ha   = rm_raincloud(data_all{1}, cl, 0, 'rash');
@@ -187,37 +246,9 @@ end
 
 %% SIGNATURE RESPONSES
 %--------------------------------------------------------------------------
-% LOAD DATA
-sigdat = DAT.SIG_contrasts.raw.dotproduct;
-behdat_full = DAT.BEHAVIOR.behavioral_data_table;
-behdat_full.patient(behdat_full.patient == -1) = 2;
-
-for n = 1:max(unique(behdat_full.patient))
-    
-    NPS{n} = [sigdat.NPS.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPS.Negative_v_Positive(behdat_full.patient==n)];
-    NPSpos{n} = [sigdat.NPSpos.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPSpos.Negative_v_Positive(behdat_full.patient==n)];
-    NPSneg{n} = [sigdat.NPSneg.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPSneg.Negative_v_Positive(behdat_full.patient==n)];
-    PINES{n} = [sigdat.PINES.Negative_v_Neutral(behdat_full.patient==n),sigdat.PINES.Negative_v_Positive(behdat_full.patient==n)];
-    
-end
-
-signatures = {NPS, NPSpos, NPSneg, PINES};
-signature_names = {'NPS', 'NPS positive', 'NPS negative', 'PINES'};
-contrast_names = {'negative versus neutral','negative versus positive'};
-
-npsposregions = DAT.NPSsubregions.npspos_by_region_contrasts;
-npsposregions_names = DAT.NPSsubregions.posnames;
-npsposregions_names_full = {'vermis','R insula','R V1','R thalamus','L insula','R dorsal posterior insula','R S2 operculum','anterior midcingulate'};
-
-for t = 1:max(unique(behdat_full.patient))
-    
-    for u = 1:size(npsposregions{1},2)
-       regions{u,t} = [npsposregions{1}(behdat_full.patient==t,u),npsposregions{2}(behdat_full.patient==t,u)];
-    end
-    
-end
 
 % INDIVIDUAL FIGURES
+
 for s = 1:size(signatures,2)
     
     for p = 1:size(NPS,2)
@@ -417,48 +448,48 @@ end
 %% ROBFIT PARCELWISE BRAIN FIGURES
 %--------------------------------------------------------------------------
 
-% LOAD DATA
-
-load(fullfile(resultsdir,'robfit_parcel_stats_and_maps_no_scaling.mat'));
-t_obj_neg_neu_group = get_wh_image(robfit_parcel_stats_results{1,1}.t_obj,1); % loads statistic_image object for group effect on first contrast
-region_13 = robfit_parcel_stats_results{1,1}.region_objects{1,1}(1,13); % loads region object for a single region for same effect on same contrast, to be used with cluster_surf below
 
 % NOTE: looping over elements of robfit_parcel_stats_results does not
 % work for some weird reason, including using get_wh_image to get the first
 % row of the dat
 
 % EXAMPLE CODE FOR DIFFERENT CANLAB PLOTTING FUNCTIONS
- 
-% canlab_results_fmridisplay and montage
+
+
+% CANLAB_RESULTS_FMRIDISPLAY AND MONTAGE
 
 % see also help for other fmridisplay methods, particularly addblobs and
 % montage
 
-han_montage = canlab_results_fmridisplay(t_obj_neg_neu_group,'outline','linewidth',0.5,'montagetype','full hcp');
-% NOTE : han_montage is an fmridisplay object
-% legend(han_montage); 
-% legend function does not seem to work properly - issue
-% posted on canlabcode
+obj_robust_parcelwise = canlab_results_fmridisplay(t_obj_neg_neu_group,'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
 f7 = gcf;
 f7.WindowState = 'maximized';
+print(f7,fullfile(figspubdir,strcat('robfit_parcelwise_',contrast_names{1},'_montage.png')),'-dpng','-r600');
 
-% render_on_surface
+
+% RENDER_ON_SURFACE
 
 surface_handle_1 = addbrain('coronal_slabs_5'); % help addbrain for all options
 render_on_surface(t_obj_neg_neu_group,surface_handle_1,'colormap','hot');
+f8 = gcf;
+f8.WindowState = 'maximized';
+print(f8,fullfile(figspubdir,strcat('robfit_parcelwise_',contrast_names{1},'_coronal_slabs.png')),'-dpng','-r600');
 
 surface_handle_2 = addbrain('hires'); % help addbrain for all options
 render_on_surface(t_obj_neg_neu_group,surface_handle_2,'colormap','hot');
 
 surface_handle_3 = addbrain('right_insula_slab'); % help addbrain for all options
 render_on_surface(t_obj_neg_neu_group,surface_handle_3,'colormap','hot');
-f8 = gcf;
-f8.WindowState = 'maximized';
+f9 = gcf;
+f9.WindowState = 'maximized';
+print(f9,fullfile(figspubdir,strcat('robfit_parcelwise_',contrast_names{1},'_right_insula_slab.png')),'-dpng','-r600');
 
 surface_handle_4 = addbrain('right_cutaway'); % help addbrain for all options
 render_on_surface(t_obj_neg_neu_group,surface_handle_4,'colormap','hot');
 
-% surface 
+
+% SURFACE
+
 % can also be used for more flexibility in defining surfaces, cutaways, etc, 
 % in combination with isosurf
 % NOTE: see region.surface and image_vector.isosurface as well as
@@ -476,7 +507,8 @@ surface_handles = [p p2 p3];
 
 [surface_handles_1,pcl1,pcl2] = surface(t_obj_neg_neu_group,surface_handles);
 
-% cluster_surf 
+
+% CLUSTER_SURF 
 
 % does not seem to work for statistic_image objects, but check
 % it out for atlas or region objects!
@@ -485,3 +517,151 @@ surface_handles = [p p2 p3];
 
 % we use a region object for a single region here as example
 cluster_surf(region_13, 2, 'colors', {[1 1 0]}, 'surf_freesurf_inflated_Left.mat'); view(1,360);
+
+
+%% PDM BRAIN FIGURES
+%--------------------------------------------------------------------------
+
+% FULL MONTAGES
+
+% single pdms
+for r = 1:size(reg_all_fdr,2)
+    o1 = canlab_results_fmridisplay(reg_all_fdr{1,r},'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
+%     o1 = legend(o1);
+%     delete(o1.activation_maps{1,2}.legendhandle); % get rid of legend for contour activation map in object
+    fig1 = gcf;
+    fig1.WindowState = 'maximized';
+    montage_full_pdm{r} = o1;
+    print(fig1,fullfile(figspubdir,strcat('pdm',num2str(r),'_',contrast_names{1},'_montage_full.png')),'-dpng','-r600');
+    close gcf;
+    clear fig1;
+end % loop pdms
+
+% source reconstruction maps for single pdms
+for s = 1:size(source_obj_j,2)
+    o1b = canlab_results_fmridisplay(source_obj_j{1,s}.threshold([2 max(source_obj_j{1,s}.dat)],'raw-between'),'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
+%     o1b = legend(o1b);
+%     delete(o1.activation_maps{1,2}.legendhandle); % get rid of legend for contour activation map in object
+    fig1b = gcf;
+    fig1b.WindowState = 'maximized';
+    montage_source_recon_pdm{s} = o1b;
+    print(fig1b,fullfile(figspubdir,strcat('pdm',num2str(s),'_source_recon_',contrast_names{1},'_montage_full.png')),'-dpng','-r600');
+    close gcf;
+    clear fig1b;
+end % loop pdms
+
+
+% BRAINSTEM RENDER FOR SINGLE PDMS
+
+for r = 1:size(reg_all_fdr,2)
+    [cmap] = cbrewer('qual','Set1',24,'pchip');
+    [surfhan,~,~] = surface(reg_all_fdr{1,r},'brainstem_group');
+    for y = [1:10] % surfhan(1,11) is handle for the entire brainstem
+        surfhan(1,y).FaceColor = cmap(y,:);
+        surfhan(1,y).FaceAlpha = 0.10;
+        surfhan(1,y).FaceLighting = 'flat';
+    end
+    for y = 12:size(surfhan,2) % surfhan(1,11) is handle for the entire brainstem
+        surfhan(1,y).FaceColor = cmap(y,:);
+        surfhan(1,y).FaceAlpha = 0.10;
+        surfhan(1,y).FaceLighting = 'flat';
+    end
+    surfhan(1,11).FaceAlpha = 0.60;
+    surfhan(1,11).BackFaceLighting = 'reverselit';
+    surfhan(1,11).FaceLighting = 'gouraud';
+    surfhan(1,11).AmbientStrength = 0.5;
+    fig2 = gcf;
+    fig2.WindowState = 'maximized';
+    ax2 = fig2.Children(5);
+    ax2.XColor = 'none';
+    ax2.YColor = 'none';
+    ax2.ZColor = 'none';
+    ax2.View = [140 20];
+    brainstem_pdm{r} = fig2;
+    print(fig2,fullfile(figspubdir,strcat('pdm',num2str(r),'_',contrast_names{1},'_brainstem.png')),'-dpng','-r600');
+    close gcf;
+    clear fig2;
+    
+end % loop pdms
+
+
+% MULTIROW MONTAGE OF BOTH PDMS
+
+o3 = canlab_results_fmridisplay([],'outline','linewidth',0.5,'montagetype','multirow',2,'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+for m = 1:size(o3.montage,2)
+    for a = 1:size(o3.montage{1,m}.axis_handles,2)
+        if m < (size(o3.montage,2)/2)+1
+            o3.montage{1,m}.axis_handles(a).Position(1,2) = o3.montage{1,m}.axis_handles(a).Position(1,2) - 0.10; % will depend on size of screen and figure, can be fixed more properly with screensize() function
+        else
+            o3.montage{1,m}.axis_handles(a).Position(1,2) = o3.montage{1,m}.axis_handles(a).Position(1,2) - 0.30; 
+        end
+    end
+end
+o3 = addblobs(o3,reg_all_fdr{1,1},'wh_montages',1:2,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+annotation('textbox',[.5 .475 .4 .5],'String','PDM #1','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
+o3 = addblobs(o3,reg_all_fdr{1,2},'wh_montages',3:4,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+annotation('textbox',[.5 0.025 .4 .5],'String','PDM #2','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
+o3 = legend(o3);
+delete(o3.activation_maps{1,2}.legendhandle); % get rid of legend for contour activation map in object
+fig3 = gcf;
+fig3.WindowState = 'maximized';
+print(fig3,fullfile(figspubdir,strcat('pdm_',contrast_names{1},'_montage_multirow.png')),'-dpng','-r600');
+
+
+% CUSTOM MONTAGES OF BOTH PDMS
+
+% first example
+
+o4 = canlab_results_fmridisplay(reg_all_fdr{1,1},'outline','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+for m = 1:size(o4.montage,2)
+    for a = 1:size(o4.montage{1,m}.axis_handles,2)
+        o4.montage{1,m}.axis_handles(a).Position(1,2) = o4.montage{1,m}.axis_handles(a).Position(1,2) + 0.20; % will depend on size of screen and figure, can be fixed more properly with screensize() function
+    end
+end
+annotation('textbox',[.5 .475 .4 .5],'String','PDM #1','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
+clear m a
+o4 = canlab_results_fmridisplay(reg_all_fdr{1,2},'outline','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+title('PDM #2');
+for m = 1:size(o4.montage,2)
+    for a = 1:size(o4.montage{1,m}.axis_handles,2)
+        o4.montage{1,m}.axis_handles(a).Position(1,2) = o4.montage{1,m}.axis_handles(a).Position(1,2) - 0.25; % will depend on size of screen and figure, can be fixed more properly with screensize() function
+    end
+end
+annotation('textbox',[.5 0.025 .4 .5],'String','PDM #2','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
+clear m a
+o4 = legend(o4);
+delete(o4.activation_maps{1,2}.legendhandle); % avoid duplicate legend with different limits
+o4.activation_maps{1,1}.legendhandle.Position(1,2) = o4.activation_maps{1,1}.legendhandle.Position(1,2) -0.05;
+brighten(.3);
+fig4 = gcf;
+fig4.WindowState = 'maximized';
+print(fig4,fullfile(figspubdir,strcat('pdm_',contrast_names{1},'_montage_custom.png')),'-dpng','-r600');
+
+% second example
+
+[fig5,~] = create_figure(strcat('pdm_',contrast_names{1},'_montage_custom'),2,10);
+fig5.WindowState = 'maximized';
+for c = 1:size(fig5.Children,1)
+    axh5{c} = fig5.Children(c);
+end
+o5 = fmridisplay('overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+o5 = montage(o5,'coronal','slice_range', [-70 20], 'onerow', 'spacing', 10,'outline','existing_axes',[axh5{1,[12:20,1]}],'brighten',0.3); % weird order of axes in object, but no worries
+o5 = addblobs(o5,reg_all_fdr{1,1},'wh_montages',1,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+annotation('textbox',[0.45 .475 .4 .5],'String','PDM #1','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
+o5 = montage(o5,'coronal','slice_range', [-70 20], 'onerow', 'spacing', 10,'outline','existing_axes',[axh5{1,[2:11]}],'brighten',0.3); % weird order of axes in object, but no worries
+o5 = addblobs(o5,reg_all_fdr{1,2},'wh_montages',2,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+annotation('textbox',[0.45 0.055 .4 .5],'String','PDM #2','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
+enlarge_axes(gcf,1.75);
+for m = 1:size(o5.montage,2)
+    for a = 1:size(o5.montage{1,m}.axis_handles,2)
+        o5.montage{1,m}.axis_handles(a).Position(1,1) = o5.montage{1,m}.axis_handles(a).Position(1,1) -0.05;
+        if m < (size(o5.montage,2)/2)+1
+            o5.montage{1,m}.axis_handles(a).Position(1,2) = o5.montage{1,m}.axis_handles(a).Position(1,2) - 0.05; % will depend on size of screen and figure, can be fixed more properly with screensize() function
+        else
+            o5.montage{1,m}.axis_handles(a).Position(1,2) = o5.montage{1,m}.axis_handles(a).Position(1,2) + 0.025; 
+        end
+    end
+end
+o5 = legend(o5);
+delete(o5.activation_maps{1,2}.legendhandle); 
+print(fig5,fullfile(figspubdir,strcat('pdm_',contrast_names{1},'_montage_custom2.png')),'-dpng','-r600');
