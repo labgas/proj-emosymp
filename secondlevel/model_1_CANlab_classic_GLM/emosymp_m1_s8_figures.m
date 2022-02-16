@@ -461,7 +461,7 @@ end
 % see also help for other fmridisplay methods, particularly addblobs and
 % montage
 
-obj_robust_parcelwise = canlab_results_fmridisplay(t_obj_neg_neu_group,'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+obj_robust_parcelwise = canlab_results_fmridisplay(t_obj_neg_neu_group,'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
 f7 = gcf;
 f7.WindowState = 'maximized';
 print(f7,fullfile(figspubdir,strcat('robfit_parcelwise_',contrast_names{1},'_montage.png')),'-dpng','-r600');
@@ -526,7 +526,7 @@ cluster_surf(region_13, 2, 'colors', {[1 1 0]}, 'surf_freesurf_inflated_Left.mat
 
 % single pdms
 for r = 1:size(reg_all_fdr,2)
-    o1 = canlab_results_fmridisplay(reg_all_fdr{1,r},'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
+    o1 = canlab_results_fmridisplay(reg_all_fdr{1,r},'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
 %     o1 = legend(o1);
 %     delete(o1.activation_maps{1,2}.legendhandle); % get rid of legend for contour activation map in object
     fig1 = gcf;
@@ -539,7 +539,8 @@ end % loop pdms
 
 % source reconstruction maps for single pdms
 for s = 1:size(source_obj_j,2)
-    o1b = canlab_results_fmridisplay(source_obj_j{1,s}.threshold([2 max(source_obj_j{1,s}.dat)],'raw-between'),'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
+   o1b = canlab_results_fmridisplay(source_obj_j{1,s},'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
+%    o1b = canlab_results_fmridisplay(source_obj_j{1,s}.threshold([0 max(source_obj_j{1,s}.dat)],'raw-between'),'outline','linewidth',0.5,'montagetype','full hcp','splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o1 is an fmridisplay object - methods fmridisplay for help
 %     o1b = legend(o1b);
 %     delete(o1.activation_maps{1,2}.legendhandle); % get rid of legend for contour activation map in object
     fig1b = gcf;
