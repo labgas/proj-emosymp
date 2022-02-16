@@ -67,11 +67,12 @@ for n = 1:max(unique(behdat_full.patient))
     NPSpos{n} = [sigdat.NPSpos.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPSpos.Negative_v_Positive(behdat_full.patient==n)];
     NPSneg{n} = [sigdat.NPSneg.Negative_v_Neutral(behdat_full.patient==n),sigdat.NPSneg.Negative_v_Positive(behdat_full.patient==n)];
     PINES{n} = [sigdat.PINES.Negative_v_Neutral(behdat_full.patient==n),sigdat.PINES.Negative_v_Positive(behdat_full.patient==n)];
+    SIIPS{n} = [sigdat.SIIPS.Negative_v_Neutral(behdat_full.patient==n),sigdat.SIIPS.Negative_v_Positive(behdat_full.patient==n)];
     
 end
 
-signatures = {NPS, NPSpos, NPSneg, PINES};
-signature_names = {'NPS', 'NPS positive', 'NPS negative', 'PINES'};
+signatures = {NPS, NPSpos, NPSneg, PINES, SIIPS};
+signature_names = {'NPS', 'NPS positive', 'NPS negative', 'PINES', 'SIIPS'};
 contrast_names = {'negative versus neutral','negative versus positive'};
 
 npsposregions = DAT.NPSsubregions.npspos_by_region_contrasts;
@@ -294,12 +295,12 @@ clear p s;
 
 % INTEGRATED PANEL FIGURES FOR PUBLICATION
 
-% PINES and NPS
+% PINES, NPS, and SIIPS
 
 f4  = figure('Position', fig_position,'WindowState','maximized');
 
 for p = 1:size(NPS,2)
-    subplot(2,2,p)
+    subplot(3,2,p)
         h5 = raincloud_plot(signatures{4}{1}(:,p), 'box_on', 1, 'color', cb(4,:), 'alpha', 0.5,...
                      'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
                      'box_col_match', 1);
@@ -323,7 +324,7 @@ for p = 1:size(NPS,2)
 end
 
 for q = 3:(size(NPS,2)+2)
-    subplot(2,2,q)
+    subplot(3,2,q)
         h7 = raincloud_plot(signatures{1}{1}(:,q-2), 'box_on', 1, 'color', cb(4,:), 'alpha', 0.5,...
                      'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
                      'box_col_match', 1);
@@ -345,10 +346,34 @@ for q = 3:(size(NPS,2)+2)
         ylim([(h8{3}.Position(2)+0.10.*h8{3}.Position(2)) (max([h7{1}.YData h8{1}.YData])+0.05.*max([h7{1}.YData h8{1}.YData]))]);
         box off
 end
-    
-print(f4,fullfile(figspubdir,strcat(signature_names{4},'_',signature_names{1},'.png')),'-dpng','-r600');
 
-clear p q;
+for r = 5:(size(NPS,2)+4)
+    subplot(3,2,r)
+        h7a = raincloud_plot(signatures{5}{1}(:,r-4), 'box_on', 1, 'color', cb(4,:), 'alpha', 0.5,...
+                     'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
+                     'box_col_match', 1);
+        h8a = raincloud_plot(signatures{5}{2}(:,r-4), 'box_on', 1, 'color', cb(1,:), 'alpha', 0.5,...
+             'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 1);
+        h7a{1}.EdgeColor = 'none';
+        h8a{1}.EdgeColor = 'none';
+        h7a{2}.SizeData = 50;
+        h8a{2}.SizeData = 50;
+        ax4{q} = gca;
+        ax4{q}.FontSize = 12;
+        ax4{q}.FontName = 'Cambria';
+        ax4{q}.YAxisLocation = 'origin';
+        ax4{q}.YTick = [];
+        ax4{q}.LineWidth = 0.25;
+        xlabel({[signature_names{5},' response']},'FontSize',18,'FontWeight','bold');
+        legend([h7a{1} h8a{1}], {'FSS patients', 'healthy controls'},'Location','best','FontSize',14,'FontWeight','bold','Box','off');
+%         title(contrast_names{q-2},'FontSize',20,'FontWeight','bold');
+        ylim([(h8a{3}.Position(2)+0.10.*h8a{3}.Position(2)) (max([h7a{1}.YData h8a{1}.YData])+0.05.*max([h7a{1}.YData h8a{1}.YData]))]);
+        box off
+end
+    
+print(f4,fullfile(figspubdir,strcat(signature_names{4},'_',signature_names{1},'_',signature_names{5},'.png')),'-dpng','-r600');
+
+clear p q r;
 
 % NPS positive and negative
 
