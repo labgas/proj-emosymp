@@ -308,8 +308,8 @@ for p = 1:size(NPS,2)
              'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 1);
         h5{1}.EdgeColor = 'none';
         h6{1}.EdgeColor = 'none';
-        h5{2}.SizeData = 50;
-        h6{2}.SizeData = 50;
+        h5{2}.SizeData = 10;
+        h6{2}.SizeData = 10;
         ax4{p} = gca;
         ax4{p}.FontSize = 12;
         ax4{p}.FontName = 'Cambria';
@@ -332,8 +332,8 @@ for q = 3:(size(NPS,2)+2)
              'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 1);
         h7{1}.EdgeColor = 'none';
         h8{1}.EdgeColor = 'none';
-        h7{2}.SizeData = 50;
-        h8{2}.SizeData = 50;
+        h7{2}.SizeData = 10;
+        h8{2}.SizeData = 10;
         ax4{q} = gca;
         ax4{q}.FontSize = 12;
         ax4{q}.FontName = 'Cambria';
@@ -356,8 +356,8 @@ for r = 5:(size(NPS,2)+4)
              'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 1);
         h7a{1}.EdgeColor = 'none';
         h8a{1}.EdgeColor = 'none';
-        h7a{2}.SizeData = 50;
-        h8a{2}.SizeData = 50;
+        h7a{2}.SizeData = 10;
+        h8a{2}.SizeData = 10;
         ax4{q} = gca;
         ax4{q}.FontSize = 12;
         ax4{q}.FontName = 'Cambria';
