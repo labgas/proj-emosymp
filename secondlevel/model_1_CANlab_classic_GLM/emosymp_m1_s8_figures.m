@@ -32,7 +32,7 @@ condition = [ones(height(behdat),1); 2.*ones(height(behdat),1); 3.*ones(height(b
 NA = [behdat.NA_neg; behdat.NA_neu; behdat.NA_pos];
 symptoms = [behdat.symptoms_neg; behdat.symptoms_neu; behdat.symptoms_pos];
 outcomes = {NA,symptoms};
-outcome_names = {'negative affect','symptoms'};
+outcome_names = {'negative affect','physical symptoms'};
 
 for o = 1:size(outcomes,2)
     D{o} = [outcomes{o},condition,group];
@@ -90,8 +90,11 @@ end
 % Robust parcelwise analysis
 
 load(fullfile(resultsdir,'robfit_parcel_stats_and_maps_no_scaling.mat'));
+load(fullfile(resultsdir,'data_objects.mat'));
 t_obj_neg_neu_group = get_wh_image(robfit_parcel_stats_results{1,1}.t_obj,1); % loads statistic_image object for group effect on first contrast
 region_13 = robfit_parcel_stats_results{1,1}.region_objects{1,1}(1,13); % loads region object for a single region for same effect on same contrast, to be used with cluster_surf below as an example
+region_9 = robfit_parcel_stats_results{1,1}.region_objects{1,1}(1,9); % loads region object for a single region for same effect on same contrast, to be used to plot individual responses in this large somatosensory region
+region_4 = robfit_parcel_stats_results{1,1}.region_objects{1,1}(1,4); % loads region object for a single region for same effect on same contrast, to be used to plot individual responses in smaller posterior insula region
 
 % PDM analysis
 
@@ -138,7 +141,7 @@ for o = 1:size(outcomes,2)
     ax{o}.XAxis.LineWidth = 1;
     ax{o}.YAxis.LineWidth = 1;
     xlabel({strcat(outcome_names{o},' rating'),''},'FontSize',24,'FontWeight','bold');
-    ylabel({'','condition'},'FontSize',24,'FontWeight','bold');
+    ylabel({'','affective valence'},'FontSize',24,'FontWeight','bold');
     yticklabels({'\fontsize{20} \bf positive','\fontsize{20} \bf neutral','\fontsize{20} \bf negative'});
     legend([h.l(1,1) h.l(1,2)],{'FSS patients','healthy controls'},'Location','best','FontSize',24,'FontWeight','bold','Box','off');
     for i = 1:3
@@ -169,7 +172,7 @@ ax1.YAxis.LineWidth = 1;
 ax1.Position = [0.07 0.1100 0.42 0.8150];
 % title(['Figure 1' newline 'Repeated measures raincloud plot']);
 xlabel({strcat(outcome_names{1},' rating'),''},'FontSize',20,'FontWeight','bold');
-ylabel({'','condition'},'FontSize',20,'FontWeight','bold');
+ylabel({'','affective valence'},'FontSize',20,'FontWeight','bold');
 yticklabels({'\fontsize{16} \bf positive','\fontsize{16} \bf neutral','\fontsize{16} \bf negative'});
 % legend([h.l(1,1) h.l(1,2)],{'FSS patients','healthy controls'},'Location','best','FontSize',20,'FontWeight','bold');
     for i = 1:3
@@ -187,7 +190,7 @@ ax2.YAxis.LineWidth = 1;
 ax2.Position = [0.5703 0.1100 0.42 0.8150];
 % title(['Figure 1' newline 'Repeated measures raincloud plot']);
 xlabel({strcat(outcome_names{2},' rating'),''},'FontSize',20,'FontWeight','bold');
-ylabel({'','condition'},'FontSize',20,'FontWeight','bold');
+ylabel({'','affective valence'},'FontSize',20,'FontWeight','bold');
 yticklabels({'\fontsize{16} \bf positive','\fontsize{16} \bf neutral','\fontsize{16} \bf negative'});
 legend([hb.l(1,1) hb.l(1,2)],{'FSS patients','healthy controls'},'Location','best','FontSize',20,'FontWeight','bold','Box','off');
     for i = 1:3
@@ -544,6 +547,97 @@ surface_handles = [p p2 p3];
 cluster_surf(region_13, 2, 'colors', {[1 1 0]}, 'surf_freesurf_inflated_Left.mat'); view(1,360);
 
 
+% PLOT INDIVIDUAL RESPONSES IN LARGE SOMATOSENSORY CLUSTER
+
+% extract data from region 9 for each condition
+for cond = 1:size(DATA_OBJ,2)
+    region_9_data{cond} = extract_data(region_9,DATA_OBJ{1,cond});
+    region_9_dat{cond} = region_9_data{cond}.dat;
+end
+
+% prep data for plotting
+fulldat = DAT.BEHAVIOR.behavioral_data_table;
+fulldat = sortrows(fulldat,'patient','ascend');
+fulldat.patient(fulldat.patient == -1) = 2;
+fullgroup = [fulldat.patient; fulldat.patient; fulldat.patient];
+fullcondition = [ones(height(fulldat),1); 2.*ones(height(fulldat),1); 3.*ones(height(fulldat),1)];
+reg9 = [region_9_dat{1}; region_9_dat{2}; region_9_dat{2}];
+fullD9 = [reg9,fullcondition,fullgroup];
+somatomotor_data = table(fullD9(:,1),fullD9(:,2),fullD9(:,3),'VariableNames',{'somatomotor','valence','group'});
+writetable(somatomotor_data,fullfile(figspubdir,'parcelwise_data.xlsx'),'Sheet',1);
+    
+for i = 1:2
+    for j = 1:2
+    reg9_data{i,j} = fullD9(fullD9(:, 2) == i & fullD9(:, 3) ==j);
+    end
+end
+
+% plot
+f9  = figure('Position', fig_position,'WindowState','maximized');
+h9   = rm_raincloud(reg9_data, cl, 0, 'rash');
+ax9 = gca;
+ax9.FontSize = 14;
+ax9.FontName = 'Cambria';
+ax9.XAxis.LineWidth = 1;
+ax9.XAxis.Limits = [-0.4 0.51];
+ax9.YAxis.LineWidth = 1;
+xlabel({'somatomotor cluster activity',''},'FontSize',24,'FontWeight','bold');
+ylabel({'','affective valence'},'FontSize',24,'FontWeight','bold');
+yticklabels({'\fontsize{20} \bf neutral','\fontsize{20} \bf negative'});
+legend([h9.l(1,1) h9.l(1,2)],{'FSS patients','healthy controls'},'Location','best','FontSize',20,'FontWeight','bold','Box','off');
+for i = 1:2
+    for j = 1:2
+        h9.s{i, j}.SizeData = 150;
+    end
+end
+
+% save
+print(f9,fullfile(figspubdir,strcat('parcelwise_region9_somatomotor.png')),'-dpng','-r600');
+
+
+% PLOT INDIVIDUAL RESPONSES IN SMALL POSTERIOR INSULA CLUSTER
+
+% extract data from region 4 for each condition
+for cond = 1:size(DATA_OBJ,2)
+    region_4_data{cond} = extract_data(region_4,DATA_OBJ{1,cond});
+    region_4_dat{cond} = region_4_data{cond}.dat;
+end
+
+% prep data for plotting
+reg4 = [region_4_dat{1}; region_4_dat{2}; region_4_dat{2}];
+fullD4 = [reg4,fullcondition,fullgroup];
+pINS_data = table(fullD4(:,1),fullD4(:,2),fullD4(:,3),'VariableNames',{'pINS','valence','group'});
+writetable(pINS_data,fullfile(figspubdir,'parcelwise_data.xlsx'),'Sheet',2);
+    
+for i = 1:2
+    for j = 1:2
+    reg4_data{i,j} = fullD4(fullD4(:, 2) == i & fullD4(:, 3) ==j);
+    end
+end
+
+% plot
+f4  = figure('Position', fig_position,'WindowState','maximized');
+h4   = rm_raincloud(reg4_data, cl, 0, 'rash');
+ax4 = gca;
+ax4.FontSize = 14;
+ax4.FontName = 'Cambria';
+ax4.XAxis.LineWidth = 1;
+ax4.XAxis.Limits = [-0.45 0.6];
+ax4.YAxis.LineWidth = 1;
+xlabel({'posterior insula cluster activity',''},'FontSize',24,'FontWeight','bold');
+ylabel({'','affective valence'},'FontSize',24,'FontWeight','bold');
+yticklabels({'\fontsize{20} \bf neutral','\fontsize{20} \bf negative'});
+legend([h4.l(1,1) h4.l(1,2)],{'FSS patients','healthy controls'},'Location','best','FontSize',20,'FontWeight','bold','Box','off');
+for i = 1:2
+    for j = 1:2
+        h4.s{i, j}.SizeData = 150;
+    end
+end
+
+% save
+print(f4,fullfile(figspubdir,strcat('parcelwise_region4_pINS.png')),'-dpng','-r600');
+
+
 %% PDM BRAIN FIGURES
 %--------------------------------------------------------------------------
 
@@ -623,9 +717,9 @@ for m = 1:size(o3.montage,2)
         end
     end
 end
-o3 = addblobs(o3,reg_all_fdr{1,1},'wh_montages',1:2,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+o3 = addblobs(o3,reg_all_fdr{1,1},'wh_montages',1:2,'splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]});
 annotation('textbox',[.5 .475 .4 .5],'String','PDM #1','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
-o3 = addblobs(o3,reg_all_fdr{1,2},'wh_montages',3:4,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+o3 = addblobs(o3,reg_all_fdr{1,2},'wh_montages',3:4,'splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]});
 annotation('textbox',[.5 0.025 .4 .5],'String','PDM #2','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
 o3 = legend(o3);
 delete(o3.activation_maps{1,2}.legendhandle); % get rid of legend for contour activation map in object
@@ -638,7 +732,7 @@ print(fig3,fullfile(figspubdir,strcat('pdm_',contrast_names{1},'_montage_multiro
 
 % first example
 
-o4 = canlab_results_fmridisplay(reg_all_fdr{1,1},'outline','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+o4 = canlab_results_fmridisplay(reg_all_fdr{1,1},'outline','splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
 for m = 1:size(o4.montage,2)
     for a = 1:size(o4.montage{1,m}.axis_handles,2)
         o4.montage{1,m}.axis_handles(a).Position(1,2) = o4.montage{1,m}.axis_handles(a).Position(1,2) + 0.20; % will depend on size of screen and figure, can be fixed more properly with screensize() function
@@ -646,7 +740,7 @@ for m = 1:size(o4.montage,2)
 end
 annotation('textbox',[.5 .475 .4 .5],'String','PDM #1','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
 clear m a
-o4 = canlab_results_fmridisplay(reg_all_fdr{1,2},'outline','splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
+o4 = canlab_results_fmridisplay(reg_all_fdr{1,2},'outline','splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
 title('PDM #2');
 for m = 1:size(o4.montage,2)
     for a = 1:size(o4.montage{1,m}.axis_handles,2)
@@ -672,10 +766,10 @@ for c = 1:size(fig5.Children,1)
 end
 o5 = fmridisplay('overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img');
 o5 = montage(o5,'coronal','slice_range', [-70 20], 'onerow', 'spacing', 10,'outline','existing_axes',[axh5{1,[12:20,1]}],'brighten',0.3); % weird order of axes in object, but no worries
-o5 = addblobs(o5,reg_all_fdr{1,1},'wh_montages',1,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+o5 = addblobs(o5,reg_all_fdr{1,1},'wh_montages',1,'splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]});
 annotation('textbox',[0.45 .475 .4 .5],'String','PDM #1','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
 o5 = montage(o5,'coronal','slice_range', [-70 20], 'onerow', 'spacing', 10,'outline','existing_axes',[axh5{1,[2:11]}],'brighten',0.3); % weird order of axes in object, but no worries
-o5 = addblobs(o5,reg_all_fdr{1,2},'wh_montages',2,'splitcolor',{[0 0 1] [.3 0 .8] [.8 .3 0] [1 1 0]});
+o5 = addblobs(o5,reg_all_fdr{1,2},'wh_montages',2,'splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]});
 annotation('textbox',[0.45 0.055 .4 .5],'String','PDM #2','FontName','Cambria','FontSize',18,'FontWeight','bold','FitBoxToText','on','EdgeColor','none');
 enlarge_axes(gcf,1.75);
 for m = 1:size(o5.montage,2)
