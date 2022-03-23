@@ -105,6 +105,16 @@ pdm_regiondir = fullfile(pdm_negneudir, 'region_objects_and_tables');
 load(fullfile(pdm_regiondir,'region_objects_and_tables.mat'));
 load(fullfile(pdm_negneudir,'PDM_source_recon_Negative_v_Neutral_somatic_symptoms.mat'));
 
+% Signature patterns for plotting
+
+gray_matter_mask = which('gray_matter_mask_sparse.img');
+nps_pat = apply_mask(fmri_data(which('weights_NSF_grouppred_cvpcr_FDR05_smoothed_fwhm05.img.gz')),gray_matter_mask);
+pines_pat = apply_mask(fmri_data(which('Rating_LASSO_PCR_boot5000_fdr05_k10_2.nii.gz')),gray_matter_mask);
+siips_pat = apply_mask(fmri_data(which('nonnoc_v11_4_subcluster_maps_fdr05_pattern_wttest.nii.gz')),gray_matter_mask);
+
+pat_objs = {nps_pat,pines_pat,siips_pat};
+pat_obj_names = {'NPS','PINES','SIIPS'};
+
 
 % DEFINE COLORS
 % to be used in raincloudplots using the great cbrewer
@@ -785,3 +795,19 @@ end
 o5 = legend(o5);
 delete(o5.activation_maps{1,2}.legendhandle); 
 print(fig5,fullfile(figspubdir,strcat('pdm_',contrast_names{1},'_montage_custom2.png')),'-dpng','-r600');
+
+
+%% SIGNATURE FIGURES
+%--------------------------------------------------------------------------
+
+% MONTAGE OF NPS, PINES & SIIPS
+
+for r = 1:size(pat_objs,2)
+    o7 = canlab_results_fmridisplay(pat_objs{1,r},'outline','linewidth',0.5,'splitcolor',{[.1 .8 .8] [.1 .1 .8] [.9 .4 0] [1 1 0]},'overlay','mni_icbm152_t1_tal_nlin_sym_09a_brainonly.img'); % o7 is an fmridisplay object - methods fmridisplay for help
+    fig1 = gcf;
+    fig1.WindowState = 'maximized';
+    montage_sigs{r} = o7;
+    print(fig1,fullfile(figspubdir,strcat(pat_obj_names{r},'_montage.png')),'-dpng','-r600');
+    close gcf;
+    clear fig1;
+end % loop pdms
